@@ -10,7 +10,9 @@ function drawStopLoss(start, end, val) {
 
     stopLoss.setColor('red');
 
-    stopLoss.setStyle("stroke-dasharray", "3, 3");
+    stopLoss.setWidth(3);
+
+    stopLoss.setStyle("stroke-dasharray", "5, 5");
 
     stopLoss.draw();
 }
@@ -27,7 +29,9 @@ function drawTakeProfit(start, end, val) {
 
     takeProfit.setColor('green');
 
-    takeProfit.setStyle("stroke-dasharray", "3, 3");
+    takeProfit.setWidth(3);
+
+    takeProfit.setStyle("stroke-dasharray", "5, 5");
 
     takeProfit.draw();
 }

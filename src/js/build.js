@@ -13,8 +13,8 @@ function buildChart(data, width, height) {
 
 
     x = d3.scaleTime()
-        .domain([new Date(data[0].Date), new Date(2016, 1, 31)])
-        .range([0, width]);
+        .domain([new Date(data[0].Date), new Date(2015, 9, 31)])
+        .range([0, width- margin.right]);
 
     // chart grid
     layer1.selectAll("line.y")

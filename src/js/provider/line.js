@@ -9,7 +9,7 @@ function Line(x1, x2, y1, y2) {
         y1: y1,
         y2: y2,
         color: "black",
-        width: "1",
+        width: 1,
         style: null,
 
         setColor: function (color) {
@@ -33,7 +33,7 @@ function Line(x1, x2, y1, y2) {
                 .attr("y1", this.y1)
                 .attr("y2", this.y2)
                 .attr("stroke", this.color)
-                .attr("width", this.width)
+                .attr("stroke-width", this.width)
                 .style(this.style[0], this.style[1]);
         }
 
