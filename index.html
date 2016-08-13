@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Demo</title>
+    <link href="src/style.css" rel="stylesheet">
+</head>
+<body>
+<div id="chart"></div>
+<script src="bower_components/headjs/dist/1.0.0/head.min.js"></script>
+<script>
+    head.load("bower_components/d3/d3.min.js");
+    head.load("bower_components/jquery/dist/jquery.min.js");
+    head.load("src/sample.js");
+    head.load(["bower_components/jquery/dist/jquery.min.js", "dist/chart.js"], function () {
+
+        $(document).ready(function () {
+
+            var chart = new Chart("#chart", 1000, 750);
+
+            chart.setData(trade.Data);
+
+            chart.drawHeader(trade.Stock.Name + " " + trade.Stock.ISIN);
+
+            chart.stoploss(trade.StopLoss.Start, trade.StopLoss.End, trade.StopLoss.Value);
+
+            chart.takeprofit(trade.TakeProfit.Start, trade.TakeProfit.End, trade.TakeProfit.Value);
+
+//            $(window).on('resize', function () {
+//
+//                chartContainer.html('');
+//
+//                init();
+//            });
+        });
+    });
+</script>
+</body>
+</html>
+
