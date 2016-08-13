@@ -4,7 +4,7 @@ function buildChart(data, width, height) {
         top: 5,
         bottom: 30,
         left: 5,
-        right: 50
+        right: 80
     };
 
     y = d3.scaleLinear()
@@ -41,13 +41,6 @@ function buildChart(data, width, height) {
         .attr("stroke", "#ccc");
 
 
-    var xAxis = d3.axisBottom()
-        .scale(x)
-        .ticks(d3.timeMonth)
-        .tickSize(16, 0)
-        .tickFormat(d3.timeFormat("%b"));
-
-
     var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     ];
@@ -57,7 +50,7 @@ function buildChart(data, width, height) {
         .data(x.ticks(d3.timeMonth))
         .enter().append("svg:text")
         .attr("class", "xrule")
-        .attr("x", x)
+        .attr("x", x )
         .attr("y", height - margin.bottom)
         .attr("dy", 20)
         .attr("text-anchor", "middle")
@@ -82,7 +75,9 @@ function buildChart(data, width, height) {
         .attr("dy", 0)
         .attr("dx", 20)
         .attr("text-anchor", "middle")
-        .text(String);
+        .text(function(d) {
+            return d3.format("$,.2f")(d);
+        });
 
     // bodies of candles
     layer2.selectAll("rect")
