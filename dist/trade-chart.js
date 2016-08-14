@@ -1,5 +1,8 @@
 function Chart(element, width, height) {
 
+
+
+
     var chart = {
 
         data: null,
@@ -8,18 +11,16 @@ function Chart(element, width, height) {
 
         height: height,
 
+        layers: [],
+
         margin: {
             top: 5,
             bottom: 30,
-            left: 5,
-            right: 80
+            left: 10,
+            right: 70
         },
 
-        chart: d3.select(element)
-            .append("svg:svg")
-            .attr("class", "chart")
-            .attr("width", width)
-            .attr("height", height),
+        chart: null,
 
         setData: function (data) {
 
@@ -31,9 +32,18 @@ function Chart(element, width, height) {
             return this.data;
         },
 
-        layer: function () {
+        getLayers: function () {
 
-            return this.chart.append('g');
+            return this.layers;
+        },
+
+        newLayer: function () {
+
+            var layer = this.chart.append('g');
+
+            this.layers.push(layer);
+
+            return layer;
         },
 
         scale: function () {
@@ -43,13 +53,39 @@ function Chart(element, width, height) {
                 .range([this.height - this.margin.bottom, this.margin.top]);
 
             x = d3.scaleTime()
-                .domain([new Date(this.data[0].Date), new Date(2015, 8, 10)])
-                .range([0, this.width - this.margin.right]);
+                .domain([new Date(this.data[0].Date), new Date(2015, 9, 1)])
+                .range([0, this.width - this.margin.right - this.margin.left]);
+
+            // x = d3.scaleOrdinal().ordinal.domain([new Date(this.data[0].Date), new Date(2015, 9, 1)])
+            //     .ordinal.range([0,width]);
 
             return {
                 "x": x,
                 "y": y
             };
+        },
+
+        build: function () {
+
+            this.chart = d3.select(element)
+                .append("svg:svg")
+                .attr("class", "chart")
+                .attr("width", width + this.margin.left + this.margin.right)
+                .attr("height", height + this.margin.top + this.margin.bottom)
+                .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+
+            layer1 = this.newLayer();
+            layer2 = this.newLayer();
+            layer3 = this.newLayer();
+
+            var scales = this.scale();
+
+            var x = scales['x'];
+            var y = scales['y'];
+
+            this.grid(layer1);
+            this.axis(layer3);
+            this.candle(layer3);
         },
 
         grid: function (layer) {
@@ -137,7 +173,8 @@ function Chart(element, width, height) {
                 })
                 .attr("fill", function (d) {
                     return d.Open > d.Close ? "red" : "green";
-                });
+                })
+                .attr("transform", "translate(" + this.margin.left + ", " + this.margin.top + ")");
 
             layer.selectAll("line.stem")
                 .data(that.data)
@@ -157,30 +194,16 @@ function Chart(element, width, height) {
                 })
                 .attr("stroke", function (d) {
                     return d.Open > d.Close ? "red" : "green";
-                });
-        },
-
-        build: function () {
-
-            layer1 = this.layer();
-            layer2 = this.layer();
-
-            var scales = this.scale();
-
-            var x = scales['x'];
-            var y = scales['y'];
-
-            this.grid(layer1);
-            this.axis(layer2);
-            this.candle(layer2);
+                })
+                .attr("transform", "translate(" + this.margin.left + ", " + this.margin.top + ")");
         },
 
 
         header: function (text) {
 
-            this.layer().append("text")
-                .attr("x", 5)
-                .attr("y", 20)
+            this.layers[2].append("text")
+                .attr("x", 5 + this.margin.left)
+                .attr("y", 10 + this.margin.top)
                 .attr("font-family", "sans-serif")
                 .attr("font-weight", 600)
                 .attr("font-size", "14px")
@@ -275,7 +298,7 @@ function Trade(chart) {
 
         chart: chart,
 
-        layer: chart.layer(),
+        layers: chart.getLayers(),
 
         stoploss: function (stoppLoss) {
 
@@ -286,7 +309,7 @@ function Trade(chart) {
 
             var y1 = y(stoppLoss.Price);
 
-            var stopLoss = new Line(this.layer, x1, x2, y1, y1);
+            var stopLoss = new Line(this.layers[1], x1, x2, y1, y1);
 
             stopLoss.setColor('red');
 
@@ -305,7 +328,7 @@ function Trade(chart) {
 
             var y1 = y(takeProfit.Price);
 
-            var takeProfit = new Line(this.layer, x1, x2, y1, y1);
+            var takeProfit = new Line(this.layers[1], x1, x2, y1, y1);
 
             takeProfit.setColor('green');
 
@@ -339,8 +362,7 @@ function Trade(chart) {
                 {"x": Date.parse(entry.Date), "y": low}
             ];
 
-
-            var rectangleAttributes = this.layer.selectAll(".point")
+            var rectangleAttributes = this.layers[1].selectAll(".point")
                 .data(rectangleData)
                 .enter()
                 .append("path")
@@ -349,7 +371,7 @@ function Trade(chart) {
                 .attr('stroke', color)
                 .attr("transform", function (d) {
 
-                    return "translate(" + (x(d.x) + 2.5) + "," + (y(d.y) + Math.sqrt(triangleSize)) + ")";
+                    return "translate(" + (x(d.x) + 0) + "," + (y(d.y) + Math.sqrt(triangleSize)) + ")";
                 })
 
 
@@ -378,7 +400,7 @@ function Trade(chart) {
             ];
 
 
-            var rectangleAttributes = this.layer.selectAll(".point")
+            var rectangleAttributes = this.layers[1].selectAll(".point")
                 .data(rectangleData)
                 .enter()
                 .append("path")

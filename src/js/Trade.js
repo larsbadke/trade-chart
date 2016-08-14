@@ -4,7 +4,7 @@ function Trade(chart) {
 
         chart: chart,
 
-        layer: chart.layer(),
+        layers: chart.getLayers(),
 
         stoploss: function (stoppLoss) {
 
@@ -15,7 +15,7 @@ function Trade(chart) {
 
             var y1 = y(stoppLoss.Price);
 
-            var stopLoss = new Line(this.layer, x1, x2, y1, y1);
+            var stopLoss = new Line(this.layers[1], x1, x2, y1, y1);
 
             stopLoss.setColor('red');
 
@@ -34,7 +34,7 @@ function Trade(chart) {
 
             var y1 = y(takeProfit.Price);
 
-            var takeProfit = new Line(this.layer, x1, x2, y1, y1);
+            var takeProfit = new Line(this.layers[1], x1, x2, y1, y1);
 
             takeProfit.setColor('green');
 
@@ -68,8 +68,7 @@ function Trade(chart) {
                 {"x": Date.parse(entry.Date), "y": low}
             ];
 
-
-            var rectangleAttributes = this.layer.selectAll(".point")
+            var rectangleAttributes = this.layers[1].selectAll(".point")
                 .data(rectangleData)
                 .enter()
                 .append("path")
@@ -78,7 +77,7 @@ function Trade(chart) {
                 .attr('stroke', color)
                 .attr("transform", function (d) {
 
-                    return "translate(" + (x(d.x) + 2.5) + "," + (y(d.y) + Math.sqrt(triangleSize)) + ")";
+                    return "translate(" + (x(d.x) + 0) + "," + (y(d.y) + Math.sqrt(triangleSize)) + ")";
                 })
 
 
@@ -107,7 +106,7 @@ function Trade(chart) {
             ];
 
 
-            var rectangleAttributes = this.layer.selectAll(".point")
+            var rectangleAttributes = this.layers[1].selectAll(".point")
                 .data(rectangleData)
                 .enter()
                 .append("path")

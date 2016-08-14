@@ -14,7 +14,7 @@ Trade-Chart helps you to visualize your trading. Whether you want to visualize, 
 ### Bower
 
 ```sh
-bower install <package> --save
+bower install trade-chart --save
 ```
 
 ## Basic Usage
