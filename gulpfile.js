@@ -22,17 +22,26 @@ var babel = require("gulp-babel");
 // });
 
 // concat js Scripts
-gulp.task('scripts', function() {
+gulp.task('js', function() {
+
     return gulp.src(['src/js/*.js', 'src/js/provider/*.js'])
-        .pipe(concat('chart.js'))
+        .pipe(concat('trade-chart.js'))
+        .pipe(gulp.dest('./dist/'));
+});
+
+
+// concat and uglify js Scripts
+gulp.task('production', function() {
+
+    gulp.src(['src/js/*.js', 'src/js/provider/*.js'])
+        .pipe(concat('trade-chart.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('./dist/'));
 
 });
 
-
 //Watch task
 gulp.task('default',function() {
     // gulp.watch('resources/assets/sass/**/*.scss',['styles']);
-    gulp.watch('src/js/**/*.js',['scripts']);
+    gulp.watch('src/js/**/*.js',['js']);
 });

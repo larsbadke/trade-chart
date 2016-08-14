@@ -4,26 +4,27 @@ var options = {
     currency: "$"
 };
 
-var trade = {
-
-    'Stock': {
-        'Name': "Hahn and Sons",
-        'ISIN': "US10023756",
-        "Currency": "eur"
+var Stock = {
+    "Name": "Sample Inc.",
+    "ISIN": "US100237DE56",
+    "Currency": "usd",
+    "Entry": {
+        "Date": "2015-08-05",
+        "Price": "70.49"
     },
-    'Entry': {
-        'Date': "2015-08-26",
-        'Price': "70.49"
+    "Exit": {
+        "Date": "2015-08-20",
+        "Price": "70.49"
     },
-    'StopLoss': {
-        'Start': "2015-08-26",
-        'End': "2015-10-05",
-        "Value": "69.08"
+    "StopLoss": {
+        "Start": "2015-08-5",
+        "End": "2015-09-05",
+        "Price": "62.08"
     },
-    'TakeProfit': {
-        'Start': "2015-08-26",
-        'End': "2015-10-05",
-        "Value": "74.01"
+    "TakeProfit": {
+        "Start": "2015-08-5",
+        "End": "2015-09-05",
+        "Price": "77.01"
     },
     "Data": [
         {

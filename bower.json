@@ -1,6 +1,6 @@
 {
   "name": "tradechart",
-  "description": "",
+  "description": "Trade-Chart helps you to visualize your trading.",
   "main": "",
   "authors": [
     "Lars Badke"
@@ -16,6 +16,6 @@
   ],
   "dependencies": {
     "d3": "^4.0.0",
-    "jquery": "^3.1.0"
+    "headjs": "^1.0.3"
   }
 }

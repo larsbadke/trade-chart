@@ -11,15 +11,27 @@ Trade-Chart helps you to visualize your trading. Whether you want to visualize, 
 
 ## Installation
 
-cooming soon!
+### Bower
 
 ```sh
-
+bower install <package> --save
 ```
 
 ## Basic Usage
 
-cooming soon!
+First create a Chart object and submit performances to them.
+```sh
+ var chart = new Chart("#chart", 1000, 750);
+
+ chart.setData(Stock.Data);
+
+ chart.build();
+
+ chart.header(Stock.Name + " " + Stock.ISIN);
+
+```
+#### Example chart with a trade setup
+![Example](example.png)
 
 ## License
 

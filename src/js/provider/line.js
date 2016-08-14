@@ -1,6 +1,6 @@
 
 
-function Line(x1, x2, y1, y2) {
+function Line(layer, x1, x2, y1, y2) {
 
     var Line = {
 
@@ -27,7 +27,7 @@ function Line(x1, x2, y1, y2) {
 
         draw: function () {
 
-            return chart.append("line")
+            return layer.append("line")
                 .attr("x1", this.x1)
                 .attr("x2", this.x2)
                 .attr("y1", this.y1)
