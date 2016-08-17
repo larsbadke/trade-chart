@@ -11,6 +11,10 @@ function Chart(element, width, height) {
 
         height: height,
 
+        x: null,
+
+        y: null,
+
         layers: [],
 
         margin: {
@@ -48,23 +52,27 @@ function Chart(element, width, height) {
 
         scale: function () {
 
-            y = d3.scaleLinear()
+            this.y = d3.scaleLinear()
                 .domain([minYValue(this.data), maxYValue(this.data)])
                 .range([this.height - this.margin.bottom, this.margin.top]);
 
-            x = d3.scaleTime()
-                .domain([new Date(this.data[0].Date), new Date(2015, 9, 1)])
-                .range([0, this.width - this.margin.right - this.margin.left]);
+            this.x = d3.scalePoint()
+                .domain(this.data.map(function (d) {
+                    return Date.parse(d.Date);
+                }))
+                .range([this.margin.left, this.width - this.margin.right - this.margin.left])
+                .align(0.5);
 
-            // x = d3.scaleOrdinal().ordinal.domain([new Date(this.data[0].Date), new Date(2015, 9, 1)])
-            //     .ordinal.range([0,width]);
 
+
+            
             return {
-                "x": x,
-                "y": y
+                "x": this.x,
+                "y": this.y
             };
         },
 
+        
         build: function () {
 
             this.chart = d3.select(element)
@@ -78,10 +86,7 @@ function Chart(element, width, height) {
             layer2 = this.newLayer();
             layer3 = this.newLayer();
 
-            var scales = this.scale();
-
-            var x = scales['x'];
-            var y = scales['y'];
+            this.scale();
 
             this.grid(layer1);
             this.axis(layer3);
@@ -93,22 +98,30 @@ function Chart(element, width, height) {
             var that = this;
 
             layer.selectAll("line.y")
-                .data(y.ticks(10))
+                .data(this.y.ticks(10))
                 .enter().append("svg:line")
                 .attr("class", "y")
                 .attr("x1", that.margin.left)
                 .attr("x2", that.width - that.margin.right)
-                .attr("y1", y)
-                .attr("y2", y)
+                .attr("y1", this.y)
+                .attr("y2", this.y)
                 .attr("stroke", "#ccc");
 
             layer.selectAll("line.x")
-                .data(x.ticks(d3.timeMonth))
+                .data(this.data)
                 .enter()
                 .append("svg:line")
                 .attr("class", "x")
-                .attr("x1", x)
-                .attr("x2", x)
+                .attr("x1", function (d, i) {
+                    if(isFirstTradingDayofMonth(i, that.data)){
+                        return that.x(Date.parse(d.Date));
+                    }
+                })
+                .attr("x2",function (d, i) {
+                    if(isFirstTradingDayofMonth(i, that.data)){
+                        return that.x(Date.parse(d.Date));
+                    }
+                })
                 .attr("y1", that.margin.top)
                 .attr("y2", that.height - that.margin.bottom)
                 .attr("stroke", "#ccc");
@@ -118,33 +131,47 @@ function Chart(element, width, height) {
 
             var that = this;
 
-            var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-            ];
-
             layer.selectAll("text.xrule")
-                .data(x.ticks(d3.timeMonth))
-                .enter().append("svg:text")
+                .data(this.data)
+                .enter()
+                .append("svg:text")
                 .attr("class", "xrule")
-                .attr("x", x)
+                .attr("x", function (d, i) {
+                    if(isFirstTradingDayofMonth(i, that.data)){
+
+                        return that.x(Date.parse(d.Date));
+                    }
+                })
                 .attr("y", that.height - that.margin.bottom)
                 .attr("dy", 20)
                 .attr("text-anchor", "middle")
-                .text(function (d) {
-                    if (d.getMonth() == 0) {
-                        return (monthNames[d.getMonth()]) + " " + d.getFullYear();
+                .text(function (d,i) {
+
+                    if(isFirstTradingDayofMonth(i, that.data)){
+
+                        var date = new Date(d.Date);
+
+                        var options = { month: 'short' };
+
+                        if (date.getMonth() == 0) {
+
+                            options.year = 'numeric';
+
+                            return date.toLocaleDateString(options.locale, options);
+                        }
+
+                        return date.toLocaleDateString(options.locale, options);
                     }
-                    return (monthNames[d.getMonth()]);
                 });
 
             layer.selectAll("text.yrule")
-                .data(y.ticks(10))
+                .data(this.y.ticks(10))
                 .enter()
                 .append("svg:text")
                 .attr("class", "yrule")
                 .attr("x", that.width - that.margin.right + 10)
-                .attr("y", y)
-                .attr("dy", 0)
+                .attr("y", this.y)
+                .attr("dy", 5)
                 .attr("dx", 20)
                 .attr("text-anchor", "middle")
                 .text(function (d) {
@@ -160,42 +187,40 @@ function Chart(element, width, height) {
                 .data(that.data)
                 .enter().append("svg:rect")
                 .attr("x", function (d) {
-                    return x(Date.parse(d.Date));
+                    return that.x(Date.parse(d.Date))-  0.25 * (that.width  - that.margin.right -that.margin.left) / that.data.length;
                 })
                 .attr("y", function (d) {
-                    return y(max(d.Open, d.Close));
+                    return that.y(max(d.Open, d.Close));
                 })
                 .attr("height", function (d) {
-                    return y(min(d.Open, d.Close)) - y(max(d.Open, d.Close));
+                    return that.y(min(d.Open, d.Close)) - that.y(max(d.Open, d.Close));
                 })
                 .attr("width", function (d) {
-                    return 0.5 * (that.width - 2 * that.margin.right) / that.data.length;
+                    return 0.5 * (that.width - that.margin.right -that.margin.left) / that.data.length;
                 })
                 .attr("fill", function (d) {
                     return d.Open > d.Close ? "red" : "green";
-                })
-                .attr("transform", "translate(" + this.margin.left + ", " + this.margin.top + ")");
+                });
 
             layer.selectAll("line.stem")
                 .data(that.data)
                 .enter().append("svg:line")
                 .attr("class", "stem")
                 .attr("x1", function (d) {
-                    return x(Date.parse(d.Date)) + 0.25 * (that.width - 2 * that.margin.right) / that.data.length;
+                    return that.x(Date.parse(d.Date));
                 })
                 .attr("x2", function (d) {
-                    return x(Date.parse(d.Date)) + 0.25 * (that.width - 2 * that.margin.right) / that.data.length;
+                    return that.x(Date.parse(d.Date)) ;
                 })
                 .attr("y1", function (d) {
-                    return y(d.High);
+                    return that.y(d.High);
                 })
                 .attr("y2", function (d) {
-                    return y(d.Low);
+                    return that.y(d.Low);
                 })
                 .attr("stroke", function (d) {
                     return d.Open > d.Close ? "red" : "green";
-                })
-                .attr("transform", "translate(" + this.margin.left + ", " + this.margin.top + ")");
+                });
         },
 
 
@@ -300,14 +325,13 @@ function Trade(chart) {
 
         layers: chart.getLayers(),
 
-        stoploss: function (stoppLoss) {
+        stoploss: function (stopLoss) {
 
+            var x1 = this.chart.x(Date.parse(stopLoss.Start));
 
-            var x1 = x(Date.parse(stoppLoss.Start));
+            var x2 = this.chart.x(Date.parse(stopLoss.End));
 
-            var x2 = x(Date.parse(stoppLoss.End));
-
-            var y1 = y(stoppLoss.Price);
+            var y1 = this.chart.y(stopLoss.Price);
 
             var stopLoss = new Line(this.layers[1], x1, x2, y1, y1);
 
@@ -322,11 +346,13 @@ function Trade(chart) {
 
         takeprofit: function (takeProfit) {
 
-            var x1 = x(Date.parse(takeProfit.Start));
+            var x1 = this.chart.x(Date.parse(takeProfit.Start));
 
-            var x2 = x(Date.parse(takeProfit.End));
+            var x2 = this.chart.x(Date.parse(takeProfit.End));
 
-            var y1 = y(takeProfit.Price);
+            var y1 = this.chart.y(takeProfit.Price);
+
+
 
             var takeProfit = new Line(this.layers[1], x1, x2, y1, y1);
 
@@ -343,6 +369,8 @@ function Trade(chart) {
 
             var low;
 
+            var chart = this.chart;
+
             this.chart.getData().forEach(function (d, i) {
 
                 if (entry.Date == d.Date) {
@@ -352,7 +380,7 @@ function Trade(chart) {
             });
 
             var color = "#11490a";
-            var triangleSize = 60;
+            var triangleSize = 70;
 
             var triangle = d3.symbol()
                 .type(d3.symbolTriangle)
@@ -371,7 +399,7 @@ function Trade(chart) {
                 .attr('stroke', color)
                 .attr("transform", function (d) {
 
-                    return "translate(" + (x(d.x) + 0) + "," + (y(d.y) + Math.sqrt(triangleSize)) + ")";
+                    return "translate(" + chart.x(d.x) + "," + (chart.y(d.y) + Math.sqrt(triangleSize + 15)) + ")";
                 })
 
 
@@ -379,6 +407,8 @@ function Trade(chart) {
         exit: function (exit) {
 
             var high;
+
+            var chart = this.chart;
 
             this.chart.getData().forEach(function (d, i) {
 
@@ -389,7 +419,7 @@ function Trade(chart) {
             });
 
             var color = "red";
-            var triangleSize = 60;
+            var triangleSize = 70;
 
             var triangle = d3.symbol()
                 .type(d3.symbolTriangle)
@@ -409,7 +439,7 @@ function Trade(chart) {
                 .attr('stroke', color)
                 .attr("transform", function (d) {
 
-                    return "translate(" + (x(d.x) + 2.5) + "," + (y(d.y) - Math.sqrt(triangleSize)) + ") rotate(180)";
+                    return "translate(" + chart.x(d.x) + "," + (chart.y(d.y) - Math.sqrt(triangleSize + 15)) + ") rotate(180)";
                 });
 
 
@@ -422,6 +452,21 @@ function Trade(chart) {
     return trade;
 
 }
+
+var de_DE = d3.formatLocale ({
+    "decimal": ",",
+    "thousands": ".",
+    "grouping": [3],
+    "currency": ["", "€"],
+    "dateTime": "%a %b %e %X %Y",
+    "date": "%m/%d/%Y",
+    "time": "%H:%M:%S",
+    "periods": ["AM", "PM"],
+    "days": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "shortDays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "shortMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+});
 
 function getFormattedDate(date) {
 
@@ -440,6 +485,22 @@ function min(a, b) {
 
 function max(a, b) {
     return a > b ? a : b;
+}
+
+
+
+function isFirstTradingDayofMonth(i, data) {
+
+    if(i){
+
+        currentDay = new Date(data[i].Date);
+
+        lastDay = new Date(data[i-1].Date);
+
+        return (lastDay.getMonth() != currentDay.getMonth()) ? true : false;
+    }
+
+    return false;
 }
 
 

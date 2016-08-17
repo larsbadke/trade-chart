@@ -16,7 +16,7 @@
     head.load("src/sample.js");
     head.load(["bower_components/d3/d3.min.js", "dist/trade-chart.js"], function () {
 
-        var chart = new Chart("#chart", 1000, 750);
+        var chart = new Chart("#chart", 1200, 800);
 
         chart.setData(Stock.Data);
 
@@ -24,15 +24,59 @@
 
         chart.header(Stock.Name + " " + Stock.ISIN);
 
-        var trade = new Trade(chart);
 
-        trade.stoploss(Stock.StopLoss);
 
-        trade.takeprofit(Stock.TakeProfit);
+        setTimeout(function(){
 
-        trade.entry(Stock.Entry);
+            var newData = JSON.parse(JSON.stringify(chart.data));
 
-        trade.exit(Stock.Exit);
+            newData.push({Date: "2015-09-02"});
+            newData.push({Date: "2015-09-03"});
+            newData.push({Date: "2015-09-04"});
+            newData.push({Date: "2015-09-05"});
+            newData.push({Date: "2015-09-06"});
+
+
+//            chart.getLayers()[2].selectAll("line.x")
+//                    .data(newData)
+//                    .enter()
+//                    .attr("class", "x")
+//                    .attr("x1", function (d, i) {
+//                        if(isFirstTradingDayofMonth(i, newData)){
+//                            return chart.x(Date.parse(d.Date));
+//                        }
+//                    })
+//                    .attr("x2",function (d, i) {
+//                        if(isFirstTradingDayofMonth(i, newData)){
+//                            return chart.x(Date.parse(d.Date));
+//                        }
+//                    })
+//                    .attr("y1", chart.margin.top)
+//                    .attr("y2", chart.height - chart.margin.bottom)
+//                    .attr("stroke", "#ccc");
+
+//            chart
+//                    .x
+//                    .transition()
+//                    .duration(10)
+//                    .domain(newData.map(function (d) {
+//                return Date.parse(d.Date);
+//            }));
+
+//            var trade = new Trade(chart);
+//
+//            trade.stoploss(Stock.StopLoss);
+//
+//            trade.takeprofit(Stock.TakeProfit);
+//
+//            trade.entry(Stock.Entry);
+//
+//            trade.exit(Stock.Exit);
+
+
+
+
+        }, 1000);
 
     });
 </script>

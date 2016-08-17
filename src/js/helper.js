@@ -16,3 +16,19 @@ function min(a, b) {
 function max(a, b) {
     return a > b ? a : b;
 }
+
+
+
+function isFirstTradingDayofMonth(i, data) {
+
+    if(i){
+
+        currentDay = new Date(data[i].Date);
+
+        lastDay = new Date(data[i-1].Date);
+
+        return (lastDay.getMonth() != currentDay.getMonth()) ? true : false;
+    }
+
+    return false;
+}

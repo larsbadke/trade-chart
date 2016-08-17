@@ -6,14 +6,13 @@ function Trade(chart) {
 
         layers: chart.getLayers(),
 
-        stoploss: function (stoppLoss) {
+        stoploss: function (stopLoss) {
 
+            var x1 = this.chart.x(Date.parse(stopLoss.Start));
 
-            var x1 = x(Date.parse(stoppLoss.Start));
+            var x2 = this.chart.x(Date.parse(stopLoss.End));
 
-            var x2 = x(Date.parse(stoppLoss.End));
-
-            var y1 = y(stoppLoss.Price);
+            var y1 = this.chart.y(stopLoss.Price);
 
             var stopLoss = new Line(this.layers[1], x1, x2, y1, y1);
 
@@ -28,11 +27,13 @@ function Trade(chart) {
 
         takeprofit: function (takeProfit) {
 
-            var x1 = x(Date.parse(takeProfit.Start));
+            var x1 = this.chart.x(Date.parse(takeProfit.Start));
 
-            var x2 = x(Date.parse(takeProfit.End));
+            var x2 = this.chart.x(Date.parse(takeProfit.End));
 
-            var y1 = y(takeProfit.Price);
+            var y1 = this.chart.y(takeProfit.Price);
+
+
 
             var takeProfit = new Line(this.layers[1], x1, x2, y1, y1);
 
@@ -49,6 +50,8 @@ function Trade(chart) {
 
             var low;
 
+            var chart = this.chart;
+
             this.chart.getData().forEach(function (d, i) {
 
                 if (entry.Date == d.Date) {
@@ -58,7 +61,7 @@ function Trade(chart) {
             });
 
             var color = "#11490a";
-            var triangleSize = 60;
+            var triangleSize = 70;
 
             var triangle = d3.symbol()
                 .type(d3.symbolTriangle)
@@ -77,7 +80,7 @@ function Trade(chart) {
                 .attr('stroke', color)
                 .attr("transform", function (d) {
 
-                    return "translate(" + (x(d.x) + 0) + "," + (y(d.y) + Math.sqrt(triangleSize)) + ")";
+                    return "translate(" + chart.x(d.x) + "," + (chart.y(d.y) + Math.sqrt(triangleSize + 15)) + ")";
                 })
 
 
@@ -85,6 +88,8 @@ function Trade(chart) {
         exit: function (exit) {
 
             var high;
+
+            var chart = this.chart;
 
             this.chart.getData().forEach(function (d, i) {
 
@@ -95,7 +100,7 @@ function Trade(chart) {
             });
 
             var color = "red";
-            var triangleSize = 60;
+            var triangleSize = 70;
 
             var triangle = d3.symbol()
                 .type(d3.symbolTriangle)
@@ -115,7 +120,7 @@ function Trade(chart) {
                 .attr('stroke', color)
                 .attr("transform", function (d) {
 
-                    return "translate(" + (x(d.x) + 2.5) + "," + (y(d.y) - Math.sqrt(triangleSize)) + ") rotate(180)";
+                    return "translate(" + chart.x(d.x) + "," + (chart.y(d.y) - Math.sqrt(triangleSize + 15)) + ") rotate(180)";
                 });
 
 

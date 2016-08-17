@@ -1,6 +1,6 @@
 
 var options = {
-    dateFormat: "de",
+    locale : "en_US",
     currency: "$"
 };
 
@@ -17,12 +17,12 @@ var Stock = {
         "Price": "70.49"
     },
     "StopLoss": {
-        "Start": "2015-08-5",
+        "Start": "2015-08-05",
         "End": "2015-09-01",
         "Price": "61.88"
     },
     "TakeProfit": {
-        "Start": "2015-08-5",
+        "Start": "2015-08-12",
         "End": "2015-09-05",
         "Price": "77.01"
     },
