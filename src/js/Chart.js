@@ -83,9 +83,8 @@ function Chart(element, width, height) {
             this.chart = d3.select(element)
                 .append("svg:svg")
                 .attr("class", "chart")
-                .attr("width", width + this.margin.left + this.margin.right)
-                .attr("height", height + this.margin.top + this.margin.bottom)
-                .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+                .attr("width", width )
+                .attr("height", height);
 
             layer1 = this.newLayer();
             layer2 = this.newLayer();

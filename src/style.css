@@ -1,7 +1,8 @@
 #chart{
-    height: 800px;
-    width: 1200px;
+    /*height: 800px;*/
+    /*width: 1200px;*/
     border: 1px solid gray;
+    display: inline-block;
 }
 
 
