@@ -1,8 +1,6 @@
 function Chart(element, width, height) {
 
 
-
-
     var chart = {
 
         data: null,
@@ -18,7 +16,7 @@ function Chart(element, width, height) {
         layers: [],
 
         margin: {
-            top: 5,
+            top: 30,
             bottom: 30,
             left: 10,
             right: 70
@@ -52,27 +50,34 @@ function Chart(element, width, height) {
 
         scale: function () {
 
+            var that = this;
+
             this.y = d3.scaleLinear()
-                .domain([minYValue(this.data), maxYValue(this.data)])
-                .range([this.height - this.margin.bottom, this.margin.top]);
+                .domain([d3.min(this.data, function(d) { return d.Low; }), d3.max(this.data, function(d) { return d.High; })])
+                .range([this.height - this.margin.bottom, this.margin.top]).nice();
+
+            var newData = JSON.parse(JSON.stringify(chart.data));
+
+            this.data.push({Date: "2015-09-02"});
+            this.data.push({Date: "2015-09-03"});
+            this.data.push({Date: "2015-09-04"});
+            this.data.push({Date: "2015-09-05"});
+            this.data.push({Date: "2015-09-06"});
 
             this.x = d3.scalePoint()
                 .domain(this.data.map(function (d) {
                     return Date.parse(d.Date);
                 }))
-                .range([this.margin.left, this.width - this.margin.right - this.margin.left])
+                .range([this.margin.left, this.width - this.margin.right - this.margin.left ])
                 .align(0.5);
 
-
-
-            
             return {
                 "x": this.x,
                 "y": this.y
             };
         },
 
-        
+
         build: function () {
 
             this.chart = d3.select(element)
@@ -89,8 +94,8 @@ function Chart(element, width, height) {
             this.scale();
 
             this.grid(layer1);
-            this.axis(layer3);
-            this.candle(layer3);
+            this.axis(layer1);
+            this.candle(layer2);
         },
 
         grid: function (layer) {
@@ -102,25 +107,36 @@ function Chart(element, width, height) {
                 .enter().append("svg:line")
                 .attr("class", "y")
                 .attr("x1", that.margin.left)
-                .attr("x2", that.width - that.margin.right)
+                .attr("x2", that.width - that.margin.right -that.margin.left)
                 .attr("y1", this.y)
                 .attr("y2", this.y)
                 .attr("stroke", "#ccc");
 
             layer.selectAll("line.x")
-                .data(this.data)
+                .data(this.data.map(function (d, i) {
+
+                    if (isFirstTradingDayofMonth(i, that.data)) {
+                        return d.Date;
+                    }
+
+                    return null;
+
+                }).filter(function (item) {
+
+                    if (typeof item !== null) {
+
+                        return item;
+                    }
+                }))
                 .enter()
                 .append("svg:line")
                 .attr("class", "x")
                 .attr("x1", function (d, i) {
-                    if(isFirstTradingDayofMonth(i, that.data)){
-                        return that.x(Date.parse(d.Date));
-                    }
+                    return that.x(Date.parse(d));
+
                 })
-                .attr("x2",function (d, i) {
-                    if(isFirstTradingDayofMonth(i, that.data)){
-                        return that.x(Date.parse(d.Date));
-                    }
+                .attr("x2", function (d, i) {
+                    return that.x(Date.parse(d));
                 })
                 .attr("y1", that.margin.top)
                 .attr("y2", that.height - that.margin.bottom)
@@ -131,63 +147,78 @@ function Chart(element, width, height) {
 
             var that = this;
 
-            layer.selectAll("text.xrule")
-                .data(this.data)
-                .enter()
-                .append("svg:text")
-                .attr("class", "xrule")
-                .attr("x", function (d, i) {
-                    if(isFirstTradingDayofMonth(i, that.data)){
+            var tickValues = this.data.map(function (d, i) {
 
-                        return that.x(Date.parse(d.Date));
-                    }
-                })
-                .attr("y", that.height - that.margin.bottom)
-                .attr("dy", 20)
-                .attr("text-anchor", "middle")
-                .text(function (d,i) {
+                if (isFirstTradingDayofMonth(i, that.data)) {
+                    return Date.parse(d.Date);
+                }
 
-                    if(isFirstTradingDayofMonth(i, that.data)){
+                return null;
+            }).filter(function (item) {
 
-                        var date = new Date(d.Date);
+                if (typeof item !== null) {
 
-                        var options = { month: 'short' };
+                    return item;
+                }
+            });
 
-                        if (date.getMonth() == 0) {
 
-                            options.year = 'numeric';
+            xAxis = d3.axisBottom(this.x).tickValues(tickValues).tickFormat(function (d) {
 
-                            return date.toLocaleDateString(options.locale, options);
-                        }
+                var date = new Date(d);
 
-                        return date.toLocaleDateString(options.locale, options);
-                    }
-                });
+                var options = {month: 'short'};
 
-            layer.selectAll("text.yrule")
-                .data(this.y.ticks(10))
-                .enter()
-                .append("svg:text")
-                .attr("class", "yrule")
-                .attr("x", that.width - that.margin.right + 10)
-                .attr("y", this.y)
-                .attr("dy", 5)
-                .attr("dx", 20)
-                .attr("text-anchor", "middle")
-                .text(function (d) {
-                    return d3.format("$,.2f")(d);
-                });
+                if (date.getMonth() == 0) {
+
+                    options.year = 'numeric';
+
+                    return date.toLocaleDateString(options.locale, options);
+                }
+
+                return date.toLocaleDateString(options.locale, options);
+            });
+
+            yAxis = d3.axisRight(this.y).tickFormat(d3.format("$,.2f"));
+
+
+            layer.append("svg")
+                .attr("class", "axis")
+                .attr("width", that.width - that.margin.right - that.margin.left )
+                .attr("height", that.height )
+                .append("g")
+                .call(xAxis)
+                .attr("transform", "translate(0," + (that.height - that.margin.bottom ) + ")");
+
+            layer.append('g').append("svg")
+                .attr("class", "axis")
+                .attr("y", 0)
+                .attr("height", that.height )
+                .append("g")
+                .call(yAxis)
+                .attr("transform", "translate("+(that.width - that.margin.left - that.margin.right )+",0)");
+
         },
 
         candle: function (layer) {
 
             var that = this;
 
+            var candles = JSON.parse(JSON.stringify(chart.data));
+
+            candles = this.data.filter(function (d) {
+
+                if (typeof d.Close !== "undefined") {
+
+                    return d;
+                }
+            });
+
             layer.selectAll("rect")
-                .data(that.data)
+                .data(candles)
                 .enter().append("svg:rect")
                 .attr("x", function (d) {
-                    return that.x(Date.parse(d.Date))-  0.25 * (that.width  - that.margin.right -that.margin.left) / that.data.length;
+                    return that.x(Date.parse(d.Date)) - 0.25 * (that.width - that.margin.right - that.margin.left) / candles.length;
                 })
                 .attr("y", function (d) {
                     return that.y(max(d.Open, d.Close));
@@ -196,21 +227,21 @@ function Chart(element, width, height) {
                     return that.y(min(d.Open, d.Close)) - that.y(max(d.Open, d.Close));
                 })
                 .attr("width", function (d) {
-                    return 0.5 * (that.width - that.margin.right -that.margin.left) / that.data.length;
+                    return 0.5 * (that.width - that.margin.right - that.margin.left) / candles.length;
                 })
                 .attr("fill", function (d) {
                     return d.Open > d.Close ? "red" : "green";
                 });
 
             layer.selectAll("line.stem")
-                .data(that.data)
+                .data(candles)
                 .enter().append("svg:line")
                 .attr("class", "stem")
                 .attr("x1", function (d) {
                     return that.x(Date.parse(d.Date));
                 })
                 .attr("x2", function (d) {
-                    return that.x(Date.parse(d.Date)) ;
+                    return that.x(Date.parse(d.Date));
                 })
                 .attr("y1", function (d) {
                     return that.y(d.High);
@@ -226,12 +257,12 @@ function Chart(element, width, height) {
 
         header: function (text) {
 
-            this.layers[2].append("text")
-                .attr("x", 5 + this.margin.left)
-                .attr("y", 10 + this.margin.top)
+            this.chart.append("text")
+                .attr("x", 0 + this.margin.left)
+                .attr("y", 20)
                 .attr("font-family", "sans-serif")
-                .attr("font-weight", 600)
-                .attr("font-size", "14px")
+                .attr("font-weight", 400)
+                .attr("font-size", "16px")
                 .attr("fill", "black")
                 .text(text);
 
@@ -253,66 +284,4 @@ function Chart(element, width, height) {
 
     return chart;
 }
-
-//TODO REFACTOR
-function maxXValue(data) {
-
-    var stockMin = d3.max(data.map(function (d) {
-        return Date.parse(d.Date);
-    }));
-
-    var array = [
-        stockMin,
-        Date.parse(Stock.StopLoss.End),
-        Date.parse(Stock.TakeProfit.End)
-    ];
-
-    return Math.max.apply(Math, array);
-}
-
-function minXValue(data) {
-
-    var stockMin = d3.min(data.map(function (d) {
-        return Date.parse(d.Date);
-    }));
-
-    var array = [
-        stockMin,
-        Date.parse(Stock.StopLoss.Start),
-        Date.parse(Stock.TakeProfit.Start)
-    ];
-
-    return Math.min.apply(Math, array);
-}
-
-function maxYValue(data) {
-
-    var stockMax = d3.max(data.map(function (x) {
-        return x["High"];
-    }));
-
-    var array = [
-        stockMax,
-        Stock.TakeProfit.Price,
-        Stock.StopLoss.Price
-    ];
-
-    return Math.max.apply(Math, array) * 1.01;
-}
-
-function minYValue(data) {
-
-    var stockMin = d3.min(data.map(function (x) {
-        return x["Low"];
-    }));
-
-    var array = [
-        stockMin,
-        Stock.TakeProfit.Price,
-        Stock.StopLoss.Price
-    ];
-
-    return Math.min.apply(Math, array) * 0.99;
-}
-
 

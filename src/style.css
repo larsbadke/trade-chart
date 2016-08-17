@@ -3,3 +3,9 @@
     width: 1200px;
     border: 1px solid gray;
 }
+
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 14px;
+}
