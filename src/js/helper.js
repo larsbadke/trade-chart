@@ -23,9 +23,9 @@ function isFirstTradingDayofMonth(i, data) {
 
     if(i){
 
-        currentDay = new Date(data[i].Date);
+        var currentDay = new Date(data[i].Date);
 
-        lastDay = new Date(data[i-1].Date);
+        var lastDay = new Date(data[i-1].Date);
 
         return (lastDay.getMonth() != currentDay.getMonth()) ? true : false;
     }

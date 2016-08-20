@@ -8,6 +8,10 @@ function Trade(chart) {
 
         stoploss: function (stopLoss) {
 
+            this.chart.data.map(function (d) {
+                console.log(d);
+            });
+
             var x1 = this.chart.x(Date.parse(stopLoss.Start));
 
             var x2 = this.chart.x(Date.parse(stopLoss.End));
@@ -32,8 +36,6 @@ function Trade(chart) {
             var x2 = this.chart.x(Date.parse(takeProfit.End));
 
             var y1 = this.chart.y(takeProfit.Price);
-
-
 
             var takeProfit = new Line(this.layers[1], x1, x2, y1, y1);
 

@@ -5,7 +5,6 @@ var uglify = require('gulp-uglify');
 var notify = require("gulp-notify");
 var uglifycss = require('gulp-uglifycss');
 var autoprefixer = require('gulp-autoprefixer');
-var gulp = require("gulp");
 var babel = require("gulp-babel");
 
 // compile scss files
@@ -21,10 +20,15 @@ var babel = require("gulp-babel");
 //
 // });
 
+
+
 // concat js Scripts
 gulp.task('js', function() {
 
-    return gulp.src(['src/js/*.js', 'src/js/provider/*.js'])
+    return gulp.src(['src/js/*.js', 'src/js/**/*.js'])
+        .pipe(babel({
+            presets: ['es2015']
+        }))
         .pipe(concat('trade-chart.js'))
         .pipe(gulp.dest('./dist/'));
 });

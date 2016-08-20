@@ -1,286 +1,215 @@
-function Chart(element, width, height) {
+class Chart {
 
+    constructor(element, data, options) {
 
-    var chart = {
+        this.element = element;
 
-        data: null,
+        this.data = data;
 
-        width: width,
+        this.width = (options.hasOwnProperty('width')) ? options.width : 1000;
 
-        height: height,
+        this.height = (options.hasOwnProperty('height')) ? options.height : 700;
 
-        x: null,
+        this.type = (options.hasOwnProperty('type')) ? options.type.toLowerCase() : 'line';
 
-        y: null,
+        this.x = null;
 
-        layers: [],
+        this.y = null;
 
-        margin: {
+        this.xAxis = null;
+
+        this.yAxis = null;
+
+        this.layers = [];
+
+        this.margin = {
             top: 30,
             bottom: 30,
             left: 10,
             right: 70
-        },
+        };
 
-        chart: null,
+        this.scale();
 
-        setData: function (data) {
+        this.chart = d3.select(this.element)
+            .append("svg:svg")
+            .attr("class", "chart")
+            .attr("width", this.width)
+            .attr("height", this.height)
+            .attr("transform", "translate(" + [this.margin.left, this.margin.top] + ")");
 
-            this.data = this.parseData(data);
-        },
+    }
 
-        getData: function () {
+    getData() {
 
-            return this.data;
-        },
-
-        getLayers: function () {
-
-            return this.layers;
-        },
-
-        newLayer: function () {
-
-            var layer = this.chart.append('g');
-
-            this.layers.push(layer);
-
-            return layer;
-        },
-
-        scale: function () {
-
-            var that = this;
-
-            this.y = d3.scaleLinear()
-                .domain([d3.min(this.data, function(d) { return d.Low; }), d3.max(this.data, function(d) { return d.High; })])
-                .range([this.height - this.margin.bottom, this.margin.top]).nice();
-
-            var newData = JSON.parse(JSON.stringify(chart.data));
-
-            this.data.push({Date: "2015-09-02"});
-            this.data.push({Date: "2015-09-03"});
-            this.data.push({Date: "2015-09-04"});
-            this.data.push({Date: "2015-09-05"});
-            this.data.push({Date: "2015-09-06"});
-
-            this.x = d3.scalePoint()
-                .domain(this.data.map(function (d) {
-                    return Date.parse(d.Date);
-                }))
-                .range([this.margin.left, this.width - this.margin.right - this.margin.left ])
-                .align(0.5);
-
-            return {
-                "x": this.x,
-                "y": this.y
-            };
-        },
-
-
-        build: function () {
-
-            this.chart = d3.select(element)
-                .append("svg:svg")
-                .attr("class", "chart")
-                .attr("width", width )
-                .attr("height", height);
-
-            layer1 = this.newLayer();
-            layer2 = this.newLayer();
-            layer3 = this.newLayer();
-
-            this.scale();
-
-            this.grid(layer1);
-            this.axis(layer1);
-            this.candle(layer2);
-        },
-
-        grid: function (layer) {
-
-            var that = this;
-
-            layer.selectAll("line.y")
-                .data(this.y.ticks(10))
-                .enter().append("svg:line")
-                .attr("class", "y")
-                .attr("x1", that.margin.left)
-                .attr("x2", that.width - that.margin.right -that.margin.left)
-                .attr("y1", this.y)
-                .attr("y2", this.y)
-                .attr("stroke", "#ccc");
-
-            layer.selectAll("line.x")
-                .data(this.data.map(function (d, i) {
-
-                    if (isFirstTradingDayofMonth(i, that.data)) {
-                        return d.Date;
-                    }
-
-                    return null;
-
-                }).filter(function (item) {
-
-                    if (typeof item !== null) {
-
-                        return item;
-                    }
-                }))
-                .enter()
-                .append("svg:line")
-                .attr("class", "x")
-                .attr("x1", function (d, i) {
-                    return that.x(Date.parse(d));
-
-                })
-                .attr("x2", function (d, i) {
-                    return that.x(Date.parse(d));
-                })
-                .attr("y1", that.margin.top)
-                .attr("y2", that.height - that.margin.bottom)
-                .attr("stroke", "#ccc");
-        },
-
-        axis: function (layer) {
-
-            var that = this;
-
-            var tickValues = this.data.map(function (d, i) {
-
-                if (isFirstTradingDayofMonth(i, that.data)) {
-                    return Date.parse(d.Date);
-                }
-
-                return null;
-            }).filter(function (item) {
-
-                if (typeof item !== null) {
-
-                    return item;
-                }
-            });
-
-
-            xAxis = d3.axisBottom(this.x).tickValues(tickValues).tickFormat(function (d) {
-
-                var date = new Date(d);
-
-                var options = {month: 'short'};
-
-                if (date.getMonth() == 0) {
-
-                    options.year = 'numeric';
-
-                    return date.toLocaleDateString(options.locale, options);
-                }
-
-                return date.toLocaleDateString(options.locale, options);
-            });
-
-            yAxis = d3.axisRight(this.y).tickFormat(d3.format("$,.2f"));
-
-
-            layer.append("svg")
-                .attr("class", "axis")
-                .attr("width", that.width - that.margin.right - that.margin.left )
-                .attr("height", that.height )
-                .append("g")
-                .call(xAxis)
-                .attr("transform", "translate(0," + (that.height - that.margin.bottom ) + ")");
-
-            layer.append('g').append("svg")
-                .attr("class", "axis")
-                .attr("y", 0)
-                .attr("height", that.height )
-                .append("g")
-                .call(yAxis)
-                .attr("transform", "translate("+(that.width - that.margin.left - that.margin.right )+",0)");
-
-        },
-
-        candle: function (layer) {
-
-            var that = this;
-
-            var candles = JSON.parse(JSON.stringify(chart.data));
-
-            candles = this.data.filter(function (d) {
-
-                if (typeof d.Close !== "undefined") {
-
-                    return d;
-                }
-            });
-
-            layer.selectAll("rect")
-                .data(candles)
-                .enter().append("svg:rect")
-                .attr("x", function (d) {
-                    return that.x(Date.parse(d.Date)) - 0.25 * (that.width - that.margin.right - that.margin.left) / candles.length;
-                })
-                .attr("y", function (d) {
-                    return that.y(max(d.Open, d.Close));
-                })
-                .attr("height", function (d) {
-                    return that.y(min(d.Open, d.Close)) - that.y(max(d.Open, d.Close));
-                })
-                .attr("width", function (d) {
-                    return 0.5 * (that.width - that.margin.right - that.margin.left) / candles.length;
-                })
-                .attr("fill", function (d) {
-                    return d.Open > d.Close ? "red" : "green";
-                });
-
-            layer.selectAll("line.stem")
-                .data(candles)
-                .enter().append("svg:line")
-                .attr("class", "stem")
-                .attr("x1", function (d) {
-                    return that.x(Date.parse(d.Date));
-                })
-                .attr("x2", function (d) {
-                    return that.x(Date.parse(d.Date));
-                })
-                .attr("y1", function (d) {
-                    return that.y(d.High);
-                })
-                .attr("y2", function (d) {
-                    return that.y(d.Low);
-                })
-                .attr("stroke", function (d) {
-                    return d.Open > d.Close ? "red" : "green";
-                });
-        },
-
-
-        header: function (text) {
-
-            this.chart.append("text")
-                .attr("x", 0 + this.margin.left)
-                .attr("y", 20)
-                .attr("font-family", "sans-serif")
-                .attr("font-weight", 400)
-                .attr("font-size", "16px")
-                .attr("fill", "black")
-                .text(text);
-
-        },
-
-        parseData: function (data) {
-
-            for (var i = 0; i < data.length; i++) {
-
-                data[i].timestamp = (new Date(data[i].Date).getTime() / 1000);
-            }
-
-            return data.sort(function (x, y) {
-
-                return Date.parse(x.Date) - Date.parse(y.Date);
-            });
-        }
+        return this.data;
     };
 
-    return chart;
+    getLayers() {
+
+        return this.layers;
+    };
+
+    newLayer () {
+
+        var layer = this.chart.append('g');
+
+        this.layers.push(layer);
+
+        return layer;
+    };
+
+    scale() {
+
+        var scale = new Scale(this.data.all(), this.width, this.height, this.margin);
+
+        this.y = scale.y();
+
+        this.x = scale.x();
+    };
+
+    rebuild () {
+
+
+        // var Redraw = new Redraw(this.chart);
+
+        var that = this;
+
+        var duration = 1;
+
+        this.x.domain(this.data.map(function (d) {
+            return Date.parse(d.Date);
+        }));
+
+        this.y.domain([d3.min(this.data, function (d) {
+            return d.Low;
+        }), d3.max(this.data, function (d) {
+            return d.High;
+        })]).nice();
+
+        var svg = d3.select(element);
+
+        svg.select(".xAxis")
+            .call(this.xAxis);
+
+        svg.select(".yAxis")
+            .call(this.yAxis);
+
+        var candles = this.chart.selectAll(".candles");
+
+        var stems = this.chart.selectAll(".stem");
+
+        candles.remove();
+
+        stems.remove();
+
+        this.chart.selectAll("rect")
+            .data(this.data.filter(function (d) {
+                if (typeof d.Close !== "undefined") {
+                    return d;
+                }
+            }))
+            .enter()
+            .append("svg:rect")
+            .attr("class", "candles")
+            .attr("x", function (d) {
+                return that.x(Date.parse(d.Date)) - 0.25 * (that.width - that.margin.right) / that.data.length;
+            })
+            .attr("y", function (d) {
+                return that.y(max(d.Open, d.Close));
+            })
+            .attr("height", function (d) {
+                return that.y(min(d.Open, d.Close)) - that.y(max(d.Open, d.Close));
+            })
+            .attr("width", function (d) {
+                return 0.5 * (that.width - that.margin.right) / that.data.length;
+            })
+            .attr("fill", function (d) {
+                return d.Open > d.Close ? "red" : "green";
+            });
+
+        this.chart.selectAll("line.stem")
+            .data(this.data.filter(function (d) {
+                if (typeof d.Close !== "undefined") {
+                    return d;
+                }
+            }))
+            .enter().append("svg:line")
+            .attr("class", "stem")
+            .attr("x1", function (d) {
+                return that.x(Date.parse(d.Date));
+            })
+            .attr("x2", function (d) {
+                return that.x(Date.parse(d.Date));
+            })
+            .attr("y1", function (d) {
+                return that.y(d.High);
+            })
+            .attr("y2", function (d) {
+                return that.y(d.Low);
+            })
+            .attr("stroke", function (d) {
+                return d.Open > d.Close ? "red" : "green";
+            });
+
+    };
+
+
+    draw () {
+
+        var layer1 = this.newLayer();
+
+        var layer2 = this.newLayer();
+
+        this.drawAxis(layer1);
+
+        this.drawChart(layer2);
+    };
+
+    drawAxis(layer) {
+
+        var axis = new Axis(this.data, this.width, this.height, this.margin);
+
+        this.xAxis = axis.x(this.x);
+
+        this.yAxis = axis.y(this.y);
+
+        layer.append('g')
+            .attr("class", "xAxis")
+            .attr("width", this.width - this.margin.right)
+            .attr("height", this.height)
+            .call(this.xAxis)
+            .attr("transform", "translate(0," + (this.height - this.margin.bottom ) + ")");
+
+        layer.append('g')
+            .attr("class", "yAxis")
+            .attr("height", this.height)
+            .call(this.yAxis)
+            .attr("transform", "translate(" + [this.width - this.margin.right, 0] + " )");
+    };
+
+    drawChart(layer) {
+
+        var chart = new ChartType(this.type);
+
+        chart.draw(this.chart, this.data, this.x, this.y, this.width, this.height, this.margin);
+    };
+
+    header (text) {
+
+        var that = this;
+
+        this.chart.append("text")
+            .attr("x", (0 + that.margin.left))
+            .attr("y", 20)
+            .attr("font-family", "sans-serif")
+            .attr("font-weight", 400)
+            .attr("font-size", "16px")
+            .attr("fill", "black")
+            .text(text);
+    };
+
+
+
 }
 
