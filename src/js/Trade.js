@@ -8,9 +8,7 @@ function Trade(chart) {
 
         stoploss: function (stopLoss) {
 
-            this.chart.data.map(function (d) {
-                console.log(d);
-            });
+            console.log(chart.data.all());
 
             var x1 = this.chart.x(Date.parse(stopLoss.Start));
 

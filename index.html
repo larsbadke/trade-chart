@@ -16,7 +16,6 @@
     head.load("src/sample.js");
     head.load(["bower_components/d3/d3.min.js", "dist/trade-chart.js"], function () {
 
-
         var Data = new ChartData(Stock.Data);
 
         Data.addSpace(10);
@@ -24,7 +23,7 @@
         var options = {
             "type": "Candlestick",
             "width": 1200,
-            "height": 800,
+            "height": 750,
         };
 
         var chart = new Chart("#chart", Data, options);
@@ -33,10 +32,10 @@
 
         chart.header(Stock.Name + " " + Stock.ISIN);
 
-//        var trade = new Trade(chart);
-//
-//        trade.stoploss(Stock.StopLoss);
-//
+        var trade = new Trade(chart);
+
+        trade.stoploss(Stock.StopLoss);
+
 //        trade.takeprofit(Stock.TakeProfit);
 //
 //        trade.entry(Stock.Entry);

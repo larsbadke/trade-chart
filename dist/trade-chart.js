@@ -4,74 +4,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Axis = function () {
-    function Axis(data, width, height, margin) {
-        _classCallCheck(this, Axis);
-
-        this.data = data;
-
-        this.width = width;
-
-        this.height = height;
-
-        this.margin = margin;
-    }
-
-    _createClass(Axis, [{
-        key: 'y',
-        value: function y(yScale) {
-
-            var that = this;
-
-            return d3.axisRight(yScale).tickSize(-(this.width - this.margin.right - this.margin.left)).tickFormat(d3.format("$,.2f"));
-        }
-    }, {
-        key: 'x',
-        value: function x(xScale) {
-
-            var that = this;
-
-            var tickValues = this.data.all().map(function (d, i) {
-
-                if (isFirstTradingDayofMonth(i, that.data.all())) {
-                    return Date.parse(d.Date);
-                }
-
-                return null;
-            }).filter(function (item) {
-
-                if (typeof item !== null) {
-
-                    return item;
-                }
-            });
-
-            return d3.axisBottom(xScale).tickValues(tickValues).tickSize(-(this.height - this.margin.bottom - this.margin.top)).tickSizeOuter(0).tickPadding(10).tickFormat(function (d) {
-
-                var date = new Date(d);
-
-                var options = { month: 'short' };
-
-                if (date.getMonth() == 0) {
-
-                    options.year = 'numeric';
-
-                    return date.toLocaleDateString(options.locale, options);
-                }
-
-                return date.toLocaleDateString(options.locale, options);
-            });
-        }
-    }]);
-
-    return Axis;
-}();
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 var Chart = function () {
     function Chart(element, data, options) {
         _classCallCheck(this, Chart);
@@ -258,81 +190,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var ChartData = function () {
-    function ChartData(data) {
-        _classCallCheck(this, ChartData);
-
-        this.data = this.set(data);
-    }
-
-    _createClass(ChartData, [{
-        key: 'set',
-        value: function set(data) {
-
-            return data.sort(function (x, y) {
-
-                return Date.parse(x.Date) - Date.parse(y.Date);
-            });
-        }
-    }, {
-        key: 'add',
-        value: function add(array) {
-
-            this.data = this.data.concat(array);
-        }
-    }, {
-        key: 'addSpace',
-        value: function addSpace(days) {
-
-            var lastData = this.data[this.data.length - 1];
-
-            var date = new Date(lastData.Date);
-
-            var spaces = [];
-
-            for (var i = 0; i < days; i++) {
-
-                date.setDate(date.getDate() + 1);
-
-                var obj = {};
-
-                obj.Date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
-
-                spaces.push(obj);
-            }
-
-            this.add(spaces);
-        }
-    }, {
-        key: 'count',
-        value: function count() {
-
-            return this.all().length;
-        }
-    }, {
-        key: 'candles',
-        value: function candles() {
-            return this.all().filter(function (d) {
-                if (typeof d.Close !== "undefined") {
-                    return d;
-                }
-            });
-        }
-    }, {
-        key: 'all',
-        value: function all() {
-            return this.data;
-        }
-    }]);
-
-    return ChartData;
-}();
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 var Redraw = function () {
     function Redraw(x, y) {
         _classCallCheck(this, Redraw);
@@ -352,47 +209,6 @@ var Redraw = function () {
 }();
 "use strict";
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Scale = function () {
-    function Scale(data, width, height, margin) {
-        _classCallCheck(this, Scale);
-
-        this.data = data;
-
-        this.width = width;
-
-        this.height = height;
-
-        this.margin = margin;
-    }
-
-    _createClass(Scale, [{
-        key: "y",
-        value: function y() {
-
-            return d3.scaleLinear().domain([d3.min(this.data, function (d) {
-                return d.Low;
-            }), d3.max(this.data, function (d) {
-                return d.High;
-            })]).range([this.height - this.margin.bottom, this.margin.top]).nice();
-        }
-    }, {
-        key: "x",
-        value: function x() {
-
-            return d3.scalePoint().domain(this.data.map(function (d) {
-                return Date.parse(d.Date);
-            })).range([this.margin.left, this.width - this.margin.right - this.margin.left]).align(0.5);
-        }
-    }]);
-
-    return Scale;
-}();
-"use strict";
-
 function Trade(chart) {
 
     var trade = {
@@ -403,9 +219,7 @@ function Trade(chart) {
 
         stoploss: function stoploss(stopLoss) {
 
-            this.chart.data.map(function (d) {
-                console.log(d);
-            });
+            console.log(chart.data.all());
 
             var x1 = this.chart.x(Date.parse(stopLoss.Start));
 
@@ -637,79 +451,232 @@ var LineChart = function () {
 
     return LineChart;
 }();
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Axis = function () {
+    function Axis(data, width, height, margin) {
+        _classCallCheck(this, Axis);
+
+        this.data = data;
+
+        this.width = width;
+
+        this.height = height;
+
+        this.margin = margin;
+    }
+
+    _createClass(Axis, [{
+        key: 'y',
+        value: function y(yScale) {
+
+            var that = this;
+
+            return d3.axisRight(yScale).tickSize(-(this.width - this.margin.right - this.margin.left)).tickFormat(d3.format("$,.2f"));
+        }
+    }, {
+        key: 'x',
+        value: function x(xScale) {
+
+            var that = this;
+
+            var tickValues = this.data.all().map(function (d, i) {
+
+                if (isFirstTradingDayofMonth(i, that.data.all())) {
+                    return Date.parse(d.Date);
+                }
+
+                return null;
+            }).filter(function (item) {
+
+                if (typeof item !== null) {
+
+                    return item;
+                }
+            });
+
+            return d3.axisBottom(xScale).tickValues(tickValues).tickSize(-(this.height - this.margin.bottom - this.margin.top)).tickSizeOuter(0).tickPadding(10).tickFormat(function (d) {
+
+                var date = new Date(d);
+
+                var options = { month: 'short' };
+
+                if (date.getMonth() == 0) {
+
+                    options.year = 'numeric';
+
+                    return date.toLocaleDateString(options.locale, options);
+                }
+
+                return date.toLocaleDateString(options.locale, options);
+            });
+        }
+    }]);
+
+    return Axis;
+}();
 "use strict";
 
-function Line(layer, x1, x2, y1, y2) {
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-    var Line = {
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-        x1: x1,
-        x2: x2,
-        y1: y1,
-        y2: y2,
-        color: "black",
-        width: 1,
-        style: null,
+var Scale = function () {
+    function Scale(data, width, height, margin) {
+        _classCallCheck(this, Scale);
 
-        setColor: function setColor(color) {
+        this.data = data;
+
+        this.width = width;
+
+        this.height = height;
+
+        this.margin = margin;
+    }
+
+    _createClass(Scale, [{
+        key: "y",
+        value: function y() {
+
+            return d3.scaleLinear().domain([d3.min(this.data, function (d) {
+                return d.Low;
+            }), d3.max(this.data, function (d) {
+                return d.High;
+            })]).range([this.height - this.margin.bottom, this.margin.top]).nice();
+        }
+    }, {
+        key: "x",
+        value: function x() {
+
+            return d3.scalePoint().domain(this.data.map(function (d) {
+                return Date.parse(d.Date);
+            })).range([this.margin.left, this.width - this.margin.right - this.margin.left]).align(0.5);
+        }
+    }]);
+
+    return Scale;
+}();
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ChartData = function () {
+    function ChartData(data) {
+        _classCallCheck(this, ChartData);
+
+        this.data = this.set(data);
+    }
+
+    _createClass(ChartData, [{
+        key: 'set',
+        value: function set(data) {
+
+            return data.sort(function (x, y) {
+
+                return Date.parse(x.Date) - Date.parse(y.Date);
+            });
+        }
+    }, {
+        key: 'add',
+        value: function add(array) {
+
+            this.data = this.data.concat(array);
+        }
+    }, {
+        key: 'addSpace',
+        value: function addSpace(days) {
+
+            var lastData = this.data[this.data.length - 1];
+
+            var date = new Date(lastData.Date);
+
+            var spaces = [];
+
+            for (var i = 0; i < days; i++) {
+
+                date.setDate(date.getDate() + 1);
+
+                var obj = {};
+
+                obj.Date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+
+                spaces.push(obj);
+            }
+
+            this.add(spaces);
+        }
+    }, {
+        key: 'count',
+        value: function count() {
+
+            return this.all().length;
+        }
+    }, {
+        key: 'candles',
+        value: function candles() {
+            return this.all().filter(function (d) {
+                if (typeof d.Close !== "undefined") {
+                    return d;
+                }
+            });
+        }
+    }, {
+        key: 'all',
+        value: function all() {
+            return this.data;
+        }
+    }]);
+
+    return ChartData;
+}();
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Line = function () {
+    function Line(layer, x1, x2, y1, y2) {
+        _classCallCheck(this, Line);
+
+        this.layer = layer;
+        this.x1 = x1;
+        this.x2 = x2;
+        this.y1 = y1;
+        this.y2 = y2;
+        this.color = "black";
+        this.width = 1;
+        this.style = null;
+    }
+
+    _createClass(Line, [{
+        key: "setColor",
+        value: function setColor(color) {
 
             this.color = color;
-        },
-
-        setWidth: function setWidth(width) {
-            this.width = width;
-        },
-
-        setStyle: function setStyle(style, value) {
-            this.style = [style, value];
-        },
-
-        draw: function draw() {
-
-            return layer.append("line").attr("x1", this.x1).attr("x2", this.x2).attr("y1", this.y1).attr("y2", this.y2).attr("stroke", this.color).attr("stroke-width", this.width).style(this.style[0], this.style[1]);
         }
-
-    };
+    }, {
+        key: "setWidth",
+        value: function setWidth(width) {
+            this.width = width;
+        }
+    }, {
+        key: "setStyle",
+        value: function setStyle(style, value) {
+            this.style = [style, value];
+        }
+    }, {
+        key: "draw",
+        value: function draw() {
+            return this.layer.append("line").attr("x1", this.x1).attr("x2", this.x2).attr("y1", this.y1).attr("y2", this.y2).attr("stroke", this.color).attr("stroke-width", this.width).style(this.style[0], this.style[1]);
+        }
+    }]);
 
     return Line;
-}
-
-
-// function Trade(x1, x2, y1, y2) {
-//
-//     var Trade = {
-//
-//         entryDate: null,
-//         entryPrice: null,
-//         exitDate: null,
-//         exitPrice: null,
-//
-//         setEntry: function (date, price) {
-//
-//             this.entryDate = date;
-//             this.entryPrice = price;
-//         },
-//
-//         setExit: function (date, price) {
-//
-//             this.exitDate = date;
-//             this.exitPrice = price;
-//         },
-//
-//         draw: function () {
-//
-//             return chart.append("line")
-//                 .attr("x1", this.x1)
-//                 .attr("x2", this.x2)
-//                 .attr("y1", this.y1)
-//                 .attr("y2", this.y2)
-//                 .attr("stroke", this.color)
-//                 .attr("stroke-width", this.width)
-//                 .style(this.style[0], this.style[1]);
-//         }
-//
-//     };
-//
-//     return Trade;
-// }
-"use strict";
+}();
