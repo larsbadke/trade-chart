@@ -18,10 +18,12 @@
 
         var Data = new ChartData(Stock.Data);
 
-        Data.addSpace(10);
+        Data.addSpace(200);
 
         var options = {
+            "currency": "usd",
             "type": "Candlestick",
+            "locale": "en-US",
             "width": 1200,
             "height": 750,
         };
@@ -36,11 +38,11 @@
 
         trade.stoploss(Stock.StopLoss);
 
-//        trade.takeprofit(Stock.TakeProfit);
-//
-//        trade.entry(Stock.Entry);
-//
-//        trade.exit(Stock.Exit);
+        trade.takeprofit(Stock.TakeProfit);
+
+        trade.entry(Stock.Entry);
+
+        trade.exit(Stock.Exit);
     });
 </script>
 </body>

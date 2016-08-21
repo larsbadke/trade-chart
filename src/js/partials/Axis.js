@@ -11,16 +11,31 @@ class Axis {
         this.margin = margin;
     }
 
-    y(yScale) {
+    y(yScale, locale, currency) {
 
         var that = this;
 
+        var format = d3.format(",.2f") ;
+
+        if(locale == "de-DE"){
+
+            format = de_DE.format(",.2f");
+        }
+
         return d3.axisRight(yScale)
             .tickSize(-(this.width - this.margin.right - this.margin.left))
-            .tickFormat(d3.format("$,.2f"));
+            .tickFormat(function (d) {
+
+                if(currency == 'eur'){
+
+                    return format(d) + "€";
+                }
+
+                return "$"+ format(d);
+            });
     }
 
-    x(xScale) {
+    x(xScale, locale) {
 
         var that = this;
 
@@ -54,10 +69,10 @@ class Axis {
 
                     options.year = 'numeric';
 
-                    return date.toLocaleDateString(options.locale, options);
+                    return date.toLocaleDateString(locale, options);
                 }
 
-                return date.toLocaleDateString(options.locale, options);
+                return date.toLocaleDateString(locale, options);
             });
 
     }

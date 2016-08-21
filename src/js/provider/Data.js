@@ -1,11 +1,9 @@
 class ChartData {
 
-
     constructor(data) {
 
         this.data = this.set(data);
     }
-
 
     set(data) {
 
@@ -15,10 +13,22 @@ class ChartData {
         });
     }
 
-
     add(array){
 
         this.data = this.data.concat(array);
+    }
+
+    spaceUntil(date){
+
+        var lastData = this.data[this.data.length -1];
+
+        var fromDate = new Date(lastData.Date);
+
+        var untilDate = new Date(date);
+
+        var days = daysBetween(fromDate, untilDate);
+
+        this.addSpace(days);
     }
 
     addSpace (days){
@@ -35,7 +45,11 @@ class ChartData {
 
             var obj = {};
 
-            obj.Date = date.getFullYear() + '-' +(date.getMonth() + 1) + '-' + date.getDate();
+            var month = ("0" + (date.getMonth() + 1)).slice(-2);
+
+            var day = ("0" + date.getDate()).slice(-2);
+
+            obj.Date = date.getFullYear() + '-' + month + '-' + day;
 
             spaces.push(obj);
         }
@@ -44,11 +58,8 @@ class ChartData {
     }
 
     count(){
-
-
         return this.all().length;
     }
-
 
     candles()  {
         return this.all().filter(function (d) {if (typeof d.Close !== "undefined") {return d;}});

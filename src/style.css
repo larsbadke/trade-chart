@@ -1,32 +1,25 @@
-#chart{
-    /*height: 800px;*/
-    /*width: 1200px;*/
+#chart {
     border: 1px solid gray;
     display: inline-block;
 }
-
 
 .tick text {
     font-family: sans-serif;
     font-size: 14px;
 }
 
-
-.tick line{
-
-
+.tick line {
     stroke: lightgray;
 }
 
-
-.tick:first-of-type line{
-
-
-     stroke: black;
- }
-
 .line {
     fill: none;
-    stroke: steelblue;
-    stroke-width: 1.5px;
+    stroke: black;
+    stroke-width: 1px;
+}
+
+.xAxis {
+
+    fill: none;
+    stroke: black;
 }

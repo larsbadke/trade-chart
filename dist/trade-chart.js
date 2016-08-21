@@ -12,6 +12,10 @@ var Chart = function () {
 
         this.data = data;
 
+        this.locale = options.hasOwnProperty('locale') ? options.locale : 'en_US';
+
+        this.currency = options.hasOwnProperty('currency') ? options.currency : 'usd';
+
         this.width = options.hasOwnProperty('width') ? options.width : 1000;
 
         this.height = options.hasOwnProperty('height') ? options.height : 700;
@@ -41,8 +45,8 @@ var Chart = function () {
     }
 
     _createClass(Chart, [{
-        key: 'getData',
-        value: function getData() {
+        key: 'Data',
+        value: function Data() {
 
             return this.data;
         }
@@ -73,73 +77,96 @@ var Chart = function () {
             this.x = scale.x();
         }
     }, {
-        key: 'rebuild',
-        value: function rebuild() {
-
-            // var Redraw = new Redraw(this.chart);
-
-            var that = this;
-
-            var duration = 1;
-
-            this.x.domain(this.data.map(function (d) {
-                return Date.parse(d.Date);
-            }));
-
-            this.y.domain([d3.min(this.data, function (d) {
-                return d.Low;
-            }), d3.max(this.data, function (d) {
-                return d.High;
-            })]).nice();
-
-            var svg = d3.select(element);
-
-            svg.select(".xAxis").call(this.xAxis);
-
-            svg.select(".yAxis").call(this.yAxis);
-
-            var candles = this.chart.selectAll(".candles");
-
-            var stems = this.chart.selectAll(".stem");
-
-            candles.remove();
-
-            stems.remove();
-
-            this.chart.selectAll("rect").data(this.data.filter(function (d) {
-                if (typeof d.Close !== "undefined") {
-                    return d;
-                }
-            })).enter().append("svg:rect").attr("class", "candles").attr("x", function (d) {
-                return that.x(Date.parse(d.Date)) - 0.25 * (that.width - that.margin.right) / that.data.length;
-            }).attr("y", function (d) {
-                return that.y(max(d.Open, d.Close));
-            }).attr("height", function (d) {
-                return that.y(min(d.Open, d.Close)) - that.y(max(d.Open, d.Close));
-            }).attr("width", function (d) {
-                return 0.5 * (that.width - that.margin.right) / that.data.length;
-            }).attr("fill", function (d) {
-                return d.Open > d.Close ? "red" : "green";
-            });
-
-            this.chart.selectAll("line.stem").data(this.data.filter(function (d) {
-                if (typeof d.Close !== "undefined") {
-                    return d;
-                }
-            })).enter().append("svg:line").attr("class", "stem").attr("x1", function (d) {
-                return that.x(Date.parse(d.Date));
-            }).attr("x2", function (d) {
-                return that.x(Date.parse(d.Date));
-            }).attr("y1", function (d) {
-                return that.y(d.High);
-            }).attr("y2", function (d) {
-                return that.y(d.Low);
-            }).attr("stroke", function (d) {
-                return d.Open > d.Close ? "red" : "green";
-            });
-        }
-    }, {
         key: 'draw',
+
+
+        // rebuild () {
+        //
+        //
+        //     // var Redraw = new Redraw(this.chart);
+        //
+        //     var that = this;
+        //
+        //     var duration = 1;
+        //
+        //     this.x.domain(this.data.map(function (d) {
+        //         return Date.parse(d.Date);
+        //     }));
+        //
+        //     this.y.domain([d3.min(this.data, function (d) {
+        //         return d.Low;
+        //     }), d3.max(this.data, function (d) {
+        //         return d.High;
+        //     })]).nice();
+        //
+        //     var svg = d3.select(element);
+        //
+        //     svg.select(".xAxis")
+        //         .call(this.xAxis);
+        //
+        //     svg.select(".yAxis")
+        //         .call(this.yAxis);
+        //
+        //     var candles = this.chart.selectAll(".candles");
+        //
+        //     var stems = this.chart.selectAll(".stem");
+        //
+        //     candles.remove();
+        //
+        //     stems.remove();
+        //
+        //     this.chart.selectAll("rect")
+        //         .data(this.data.filter(function (d) {
+        //             if (typeof d.Close !== "undefined") {
+        //                 return d;
+        //             }
+        //         }))
+        //         .enter()
+        //         .append("svg:rect")
+        //         .attr("class", "candles")
+        //         .attr("x", function (d) {
+        //             return that.x(Date.parse(d.Date)) - 0.25 * (that.width - that.margin.right) / that.data.length;
+        //         })
+        //         .attr("y", function (d) {
+        //             return that.y(max(d.Open, d.Close));
+        //         })
+        //         .attr("height", function (d) {
+        //             return that.y(min(d.Open, d.Close)) - that.y(max(d.Open, d.Close));
+        //         })
+        //         .attr("width", function (d) {
+        //             return 0.5 * (that.width - that.margin.right) / that.data.length;
+        //         })
+        //         .attr("fill", function (d) {
+        //             return d.Open > d.Close ? "red" : "green";
+        //         });
+        //
+        //     this.chart.selectAll("line.stem")
+        //         .data(this.data.filter(function (d) {
+        //             if (typeof d.Close !== "undefined") {
+        //                 return d;
+        //             }
+        //         }))
+        //         .enter().append("svg:line")
+        //         .attr("class", "stem")
+        //         .attr("x1", function (d) {
+        //             return that.x(Date.parse(d.Date));
+        //         })
+        //         .attr("x2", function (d) {
+        //             return that.x(Date.parse(d.Date));
+        //         })
+        //         .attr("y1", function (d) {
+        //             return that.y(d.High);
+        //         })
+        //         .attr("y2", function (d) {
+        //             return that.y(d.Low);
+        //         })
+        //         .attr("stroke", function (d) {
+        //             return d.Open > d.Close ? "red" : "green";
+        //         });
+        //
+        // };
+
+
         value: function draw() {
 
             var layer1 = this.newLayer();
@@ -156,13 +183,15 @@ var Chart = function () {
 
             var axis = new Axis(this.data, this.width, this.height, this.margin);
 
-            this.xAxis = axis.x(this.x);
+            this.xAxis = axis.x(this.x, this.locale);
 
-            this.yAxis = axis.y(this.y);
+            this.yAxis = axis.y(this.y, this.locale, this.currency);
 
-            layer.append('g').attr("class", "xAxis").attr("width", this.width - this.margin.right).attr("height", this.height).call(this.xAxis).attr("transform", "translate(0," + (this.height - this.margin.bottom) + ")");
+            layer.append('g').attr("class", "Axis").attr("width", this.width - this.margin.right).attr("height", this.height).call(this.xAxis).attr("transform", "translate(0," + (this.height - this.margin.bottom) + ")");
 
-            layer.append('g').attr("class", "yAxis").attr("height", this.height).call(this.yAxis).attr("transform", "translate(" + [this.width - this.margin.right, 0] + " )");
+            layer.append('g').attr("class", "Axis").attr("height", this.height).call(this.yAxis).attr("transform", "translate(" + [this.width - this.margin.right, 0] + " )");
+
+            layer.append("line").attr("class", "xAxis").attr("x1", this.margin.left).attr("y1", this.height - this.margin.bottom).attr("x2", this.width - this.margin.right).attr("y2", this.height - this.margin.bottom).attr("fill", "black").attr("stroke", "black");
         }
     }, {
         key: 'drawChart',
@@ -209,17 +238,27 @@ var Redraw = function () {
 }();
 "use strict";
 
-function Trade(chart) {
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-    var trade = {
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-        chart: chart,
+var Trade = function () {
+    function Trade(chart) {
+        _classCallCheck(this, Trade);
 
-        layers: chart.getLayers(),
+        this.chart = chart;
 
-        stoploss: function stoploss(stopLoss) {
+        this.layers = chart.getLayers();
+    }
 
-            console.log(chart.data.all());
+    _createClass(Trade, [{
+        key: "stoploss",
+        value: function stoploss(stopLoss) {
+
+            if (!this.findDay(stopLoss.End, this.chart.Data().all())) {
+
+                this.chart.Data().spaceUntil(stopLoss.End);
+            }
 
             var x1 = this.chart.x(Date.parse(stopLoss.Start));
 
@@ -236,9 +275,10 @@ function Trade(chart) {
             stopLoss.setStyle("stroke-dasharray", "5, 5");
 
             stopLoss.draw();
-        },
-
-        takeprofit: function takeprofit(takeProfit) {
+        }
+    }, {
+        key: "takeprofit",
+        value: function takeprofit(takeProfit) {
 
             var x1 = this.chart.x(Date.parse(takeProfit.Start));
 
@@ -255,65 +295,78 @@ function Trade(chart) {
             takeProfit.setStyle("stroke-dasharray", "5, 5");
 
             takeProfit.draw();
-        },
+        }
+    }, {
+        key: "createTriangle",
+        value: function createTriangle(size) {
 
-        entry: function entry(_entry) {
+            return d3.symbol().type(d3.symbolTriangle).size(size);
+        }
+    }, {
+        key: "findDay",
+        value: function findDay(date, data) {
 
-            var low;
+            var find = false;
+
+            data.forEach(function (d, i) {
+
+                if (date == d.Date) {
+
+                    return find = d;
+                }
+            });
+
+            return find ? find : false;
+        }
+    }, {
+        key: "entry",
+        value: function entry(_entry) {
 
             var chart = this.chart;
 
-            this.chart.getData().forEach(function (d, i) {
+            var date = this.findDay(_entry.Date, this.chart.Data().candles());
 
-                if (_entry.Date == d.Date) {
-
-                    low = d.Low;
-                }
-            });
+            if (!date) {
+                throw 'Date is not found';
+            }
 
             var color = "#11490a";
             var triangleSize = 70;
+            var triangle = this.createTriangle(triangleSize);
 
-            var triangle = d3.symbol().type(d3.symbolTriangle).size(triangleSize);
-
-            var rectangleData = [{ "x": Date.parse(_entry.Date), "y": low }];
+            var rectangleData = [{ "x": Date.parse(_entry.Date), "y": date.Low }];
 
             var rectangleAttributes = this.layers[1].selectAll(".point").data(rectangleData).enter().append("path").attr("d", triangle).attr('fill', color).attr('stroke', color).attr("transform", function (d) {
-
                 return "translate(" + chart.x(d.x) + "," + (chart.y(d.y) + Math.sqrt(triangleSize + 15)) + ")";
             });
-        },
-        exit: function exit(_exit) {
-
-            var high;
+        }
+    }, {
+        key: "exit",
+        value: function exit(_exit) {
 
             var chart = this.chart;
 
-            this.chart.getData().forEach(function (d, i) {
+            var date = this.findDay(_exit.Date, this.chart.Data().candles());
 
-                if (_exit.Date == d.Date) {
-
-                    high = d.High;
-                }
-            });
+            if (!date) {
+                throw 'Date is not found';
+            }
 
             var color = "red";
             var triangleSize = 70;
+            var triangle = this.createTriangle(triangleSize);
 
-            var triangle = d3.symbol().type(d3.symbolTriangle).size(triangleSize);
-
-            var rectangleData = [{ "x": Date.parse(_exit.Date), "y": high }];
+            var rectangleData = [{ "x": Date.parse(_exit.Date), "y": date.High }];
 
             var rectangleAttributes = this.layers[1].selectAll(".point").data(rectangleData).enter().append("path").attr("d", triangle).attr('fill', color).attr('stroke', color).attr("transform", function (d) {
 
                 return "translate(" + chart.x(d.x) + "," + (chart.y(d.y) - Math.sqrt(triangleSize + 15)) + ") rotate(180)";
             });
         }
+    }]);
 
-    };
-
-    return trade;
-}
+    return Trade;
+}();
 "use strict";
 
 var de_DE = d3.formatLocale({
@@ -362,6 +415,22 @@ function isFirstTradingDayofMonth(i, data) {
     }
 
     return false;
+}
+
+function daysBetween(date1, date2) {
+
+    //Get 1 day in milliseconds
+    var one_day = 1000 * 60 * 60 * 24;
+
+    // Convert both dates to milliseconds
+    var date1_ms = date1.getTime();
+    var date2_ms = date2.getTime();
+
+    // Calculate the difference in milliseconds
+    var difference_ms = date2_ms - date1_ms;
+
+    // Convert back to days and return
+    return Math.ceil(difference_ms / one_day);
 }
 "use strict";
 
@@ -451,7 +520,7 @@ var LineChart = function () {
 
     return LineChart;
 }();
-'use strict';
+"use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -471,16 +540,31 @@ var Axis = function () {
     }
 
     _createClass(Axis, [{
-        key: 'y',
-        value: function y(yScale) {
+        key: "y",
+        value: function y(yScale, locale, currency) {
 
             var that = this;
 
-            return d3.axisRight(yScale).tickSize(-(this.width - this.margin.right - this.margin.left)).tickFormat(d3.format("$,.2f"));
+            var format = d3.format(",.2f");
+
+            if (locale == "de-DE") {
+
+                format = de_DE.format(",.2f");
+            }
+
+            return d3.axisRight(yScale).tickSize(-(this.width - this.margin.right - this.margin.left)).tickFormat(function (d) {
+
+                if (currency == 'eur') {
+
+                    return format(d) + "€";
+                }
+
+                return "$" + format(d);
+            });
         }
     }, {
-        key: 'x',
-        value: function x(xScale) {
+        key: "x",
+        value: function x(xScale, locale) {
 
             var that = this;
 
@@ -509,10 +593,10 @@ var Axis = function () {
 
                     options.year = 'numeric';
 
-                    return date.toLocaleDateString(options.locale, options);
+                    return date.toLocaleDateString(locale, options);
                 }
 
-                return date.toLocaleDateString(options.locale, options);
+                return date.toLocaleDateString(locale, options);
             });
         }
     }]);
@@ -560,7 +644,7 @@ var Scale = function () {
 
     return Scale;
 }();
-'use strict';
+"use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -574,7 +658,7 @@ var ChartData = function () {
     }
 
     _createClass(ChartData, [{
-        key: 'set',
+        key: "set",
         value: function set(data) {
 
             return data.sort(function (x, y) {
@@ -583,13 +667,27 @@ var ChartData = function () {
             });
         }
     }, {
-        key: 'add',
+        key: "add",
         value: function add(array) {
 
             this.data = this.data.concat(array);
         }
     }, {
-        key: 'addSpace',
+        key: "spaceUntil",
+        value: function spaceUntil(date) {
+
+            var lastData = this.data[this.data.length - 1];
+
+            var fromDate = new Date(lastData.Date);
+
+            var untilDate = new Date(date);
+
+            var days = daysBetween(fromDate, untilDate);
+
+            this.addSpace(days);
+        }
+    }, {
+        key: "addSpace",
         value: function addSpace(days) {
 
             var lastData = this.data[this.data.length - 1];
@@ -604,7 +702,11 @@ var ChartData = function () {
 
                 var obj = {};
 
-                obj.Date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+                var month = ("0" + (date.getMonth() + 1)).slice(-2);
+
+                var day = ("0" + date.getDate()).slice(-2);
+
+                obj.Date = date.getFullYear() + '-' + month + '-' + day;
 
                 spaces.push(obj);
             }
@@ -612,13 +714,12 @@ var ChartData = function () {
             this.add(spaces);
         }
     }, {
-        key: 'count',
+        key: "count",
         value: function count() {
-
             return this.all().length;
         }
     }, {
-        key: 'candles',
+        key: "candles",
         value: function candles() {
             return this.all().filter(function (d) {
                 if (typeof d.Close !== "undefined") {
@@ -627,7 +728,7 @@ var ChartData = function () {
             });
         }
     }, {
-        key: 'all',
+        key: "all",
         value: function all() {
             return this.data;
         }

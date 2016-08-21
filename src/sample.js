@@ -1,7 +1,6 @@
 
 var options = {
     locale : "en_US",
-    currency: "$"
 };
 
 var Stock = {
@@ -17,7 +16,7 @@ var Stock = {
         "Price": "70.49"
     },
     "StopLoss": {
-        "Start": "2015-09-01",
+        "Start": "2015-08-05",
         "End": "2015-09-05",
         "Price": "61.88"
     },
