@@ -77,96 +77,73 @@ var Chart = function () {
             this.x = scale.x();
         }
     }, {
+        key: 'redraw',
+        value: function redraw() {
+
+            // var Redraw = new Redraw(this.chart);
+
+            var that = this;
+
+            var duration = 1;
+
+            this.x.domain(this.data.map(function (d) {
+                return Date.parse(d.Date);
+            }));
+
+            this.y.domain([d3.min(this.data, function (d) {
+                return d.Low;
+            }), d3.max(this.data, function (d) {
+                return d.High;
+            })]).nice();
+
+            var svg = d3.select(element);
+
+            svg.select(".xAxis").call(this.xAxis);
+
+            svg.select(".yAxis").call(this.yAxis);
+
+            var candles = this.chart.selectAll(".candles");
+
+            var stems = this.chart.selectAll(".stem");
+
+            candles.remove();
+
+            stems.remove();
+
+            this.chart.selectAll("rect").data(this.data.filter(function (d) {
+                if (typeof d.Close !== "undefined") {
+                    return d;
+                }
+            })).enter().append("svg:rect").attr("class", "candles").attr("x", function (d) {
+                return that.x(Date.parse(d.Date)) - 0.25 * (that.width - that.margin.right) / that.data.length;
+            }).attr("y", function (d) {
+                return that.y(max(d.Open, d.Close));
+            }).attr("height", function (d) {
+                return that.y(min(d.Open, d.Close)) - that.y(max(d.Open, d.Close));
+            }).attr("width", function (d) {
+                return 0.5 * (that.width - that.margin.right) / that.data.length;
+            }).attr("fill", function (d) {
+                return d.Open > d.Close ? "red" : "green";
+            });
+
+            this.chart.selectAll("line.stem").data(this.data.filter(function (d) {
+                if (typeof d.Close !== "undefined") {
+                    return d;
+                }
+            })).enter().append("svg:line").attr("class", "stem").attr("x1", function (d) {
+                return that.x(Date.parse(d.Date));
+            }).attr("x2", function (d) {
+                return that.x(Date.parse(d.Date));
+            }).attr("y1", function (d) {
+                return that.y(d.High);
+            }).attr("y2", function (d) {
+                return that.y(d.Low);
+            }).attr("stroke", function (d) {
+                return d.Open > d.Close ? "red" : "green";
+            });
+        }
+    }, {
         key: 'draw',
-
-
-        // rebuild () {
-        //
-        //
-        //     // var Redraw = new Redraw(this.chart);
-        //
-        //     var that = this;
-        //
-        //     var duration = 1;
-        //
-        //     this.x.domain(this.data.map(function (d) {
-        //         return Date.parse(d.Date);
-        //     }));
-        //
-        //     this.y.domain([d3.min(this.data, function (d) {
-        //         return d.Low;
-        //     }), d3.max(this.data, function (d) {
-        //         return d.High;
-        //     })]).nice();
-        //
-        //     var svg = d3.select(element);
-        //
-        //     svg.select(".xAxis")
-        //         .call(this.xAxis);
-        //
-        //     svg.select(".yAxis")
-        //         .call(this.yAxis);
-        //
-        //     var candles = this.chart.selectAll(".candles");
-        //
-        //     var stems = this.chart.selectAll(".stem");
-        //
-        //     candles.remove();
-        //
-        //     stems.remove();
-        //
-        //     this.chart.selectAll("rect")
-        //         .data(this.data.filter(function (d) {
-        //             if (typeof d.Close !== "undefined") {
-        //                 return d;
-        //             }
-        //         }))
-        //         .enter()
-        //         .append("svg:rect")
-        //         .attr("class", "candles")
-        //         .attr("x", function (d) {
-        //             return that.x(Date.parse(d.Date)) - 0.25 * (that.width - that.margin.right) / that.data.length;
-        //         })
-        //         .attr("y", function (d) {
-        //             return that.y(max(d.Open, d.Close));
-        //         })
-        //         .attr("height", function (d) {
-        //             return that.y(min(d.Open, d.Close)) - that.y(max(d.Open, d.Close));
-        //         })
-        //         .attr("width", function (d) {
-        //             return 0.5 * (that.width - that.margin.right) / that.data.length;
-        //         })
-        //         .attr("fill", function (d) {
-        //             return d.Open > d.Close ? "red" : "green";
-        //         });
-        //
-        //     this.chart.selectAll("line.stem")
-        //         .data(this.data.filter(function (d) {
-        //             if (typeof d.Close !== "undefined") {
-        //                 return d;
-        //             }
-        //         }))
-        //         .enter().append("svg:line")
-        //         .attr("class", "stem")
-        //         .attr("x1", function (d) {
-        //             return that.x(Date.parse(d.Date));
-        //         })
-        //         .attr("x2", function (d) {
-        //             return that.x(Date.parse(d.Date));
-        //         })
-        //         .attr("y1", function (d) {
-        //             return that.y(d.High);
-        //         })
-        //         .attr("y2", function (d) {
-        //             return that.y(d.Low);
-        //         })
-        //         .attr("stroke", function (d) {
-        //             return d.Open > d.Close ? "red" : "green";
-        //         });
-        //
-        // };
-
-
         value: function draw() {
 
             var layer1 = this.newLayer();

@@ -19,15 +19,26 @@ bower install trade-chart --save
 
 ## Basic Usage
 
-First create a Chart object and submit performances to them.
+First create a ChartData object and submitt it to a Chart object.
 ```sh
- var chart = new Chart("#chart", 1000, 750);
 
- chart.setData(Stock.Data);
+var Data = new ChartData(Stock.Data);
 
- chart.build();
+Data.addSpace(50);
 
- chart.header(Stock.Name + " " + Stock.ISIN);
+var options = {
+    "currency": Stock.Currency,
+    "type": "candlestick",
+    "locale": 'en-US',
+    "width": 1200,
+    "height": 750,
+};
+
+var chart = new Chart("#chart", Data, options);
+
+chart.draw();
+
+chart.header(Stock.Name + " " + Stock.ISIN);
 
 ```
 #### Example chart with a trade setup

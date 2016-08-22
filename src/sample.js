@@ -1,12 +1,8 @@
 
-var options = {
-    locale : "en_US",
-};
-
 var Stock = {
     "Name": "Sample Inc.",
     "ISIN": "US100237DE56",
-    "Currency": "usd",
+    "Currency": "eur",
     "Entry": {
         "Date": "2015-08-05",
         "Price": "70.49"
@@ -17,12 +13,12 @@ var Stock = {
     },
     "StopLoss": {
         "Start": "2015-08-05",
-        "End": "2015-09-05",
+        "End": "2015-10-05",
         "Price": "61.88"
     },
     "TakeProfit": {
         "Start": "2015-08-05",
-        "End": "2015-09-05",
+        "End": "2015-10-05",
         "Price": "77.01"
     },
     "Data": [
