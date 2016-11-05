@@ -37,7 +37,7 @@ class Chart {
 
         this.chart = d3.select(this.element)
             .append("svg:svg")
-            .attr("class", "chart")
+            // .attr("class", "chart")
             .attr("width", this.width)
             .attr("height", this.height)
             .attr("transform", "translate(" + [this.margin.left, this.margin.top] + ")");
