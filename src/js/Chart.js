@@ -42,7 +42,6 @@ class Chart {
             .attr("height", this.height)
             .attr("transform", "translate(" + [this.margin.left, this.margin.top] + ")");
     }
-
     Data() {
 
         return this.data;
