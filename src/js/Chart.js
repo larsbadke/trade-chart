@@ -203,7 +203,11 @@ class Chart {
 
         var chart = new ChartType(this.type);
 
-        chart.draw(this.chart, this.data, this.x, this.y, this.width, this.height, this.margin);
+        var width = this.width;
+
+        console.log(this.x);
+
+        chart.draw(this.chart, this.data, this.x, this.y, width , this.height, this.margin);
     };
 
     header (text) {

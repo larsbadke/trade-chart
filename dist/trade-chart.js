@@ -178,7 +178,11 @@ var Chart = function () {
 
             var chart = new ChartType(this.type);
 
-            chart.draw(this.chart, this.data, this.x, this.y, this.width, this.height, this.margin);
+            var width = this.width;
+
+            console.log(this.x);
+
+            chart.draw(this.chart, this.data, this.x, this.y, width, this.height, this.margin);
         }
     }, {
         key: 'header',
@@ -427,11 +431,28 @@ var CandlestickChart = function () {
         value: function draw(chart, data, xScale, yScale, width, height, margin) {
 
             chart.selectAll("rect").data(data.candles()).enter().append("svg:rect").attr("class", "candles").attr("x", function (d) {
+
                 return xScale(Date.parse(d.Date)) - 0.25 * (width - margin.right) / data.count();
             }).attr("y", function (d) {
-                return yScale(max(d.Open, d.Close));
+
+                var open = parseFloat(d.Open).toFixed(3);
+
+                var close = parseFloat(d.Close).toFixed(3);
+
+                return yScale(max(open, close));
             }).attr("height", function (d) {
-                return yScale(min(d.Open, d.Close)) - yScale(max(d.Open, d.Close));
+
+                var open = parseFloat(d.Open).toFixed(3);
+
+                var close = parseFloat(d.Close).toFixed(3);
+
+                // candlestick bug
+                if (open == close) {
+
+                    open = open - 0.005;
+                }
+
+                return yScale(Math.min(open, close)) - yScale(Math.max(open, close));
             }).attr("width", function (d) {
                 return 0.5 * (width - margin.right) / data.count();
             }).attr("fill", function (d) {
@@ -605,11 +626,19 @@ var Scale = function () {
         key: "y",
         value: function y() {
 
-            return d3.scaleLinear().domain([d3.min(this.data, function (d) {
-                return d.Low;
-            }), d3.max(this.data, function (d) {
-                return d.High;
-            })]).range([this.height - this.margin.bottom, this.margin.top]).nice();
+            var min = d3.min(this.data, function (d) {
+                return parseFloat(d.Low);
+            });
+
+            min = min * 0.98;
+
+            var max = d3.max(this.data, function (d) {
+                return parseFloat(d.High);
+            });
+
+            max = max * 1.02;
+
+            return d3.scaleLinear().domain([min, max]).range([this.height - this.margin.bottom, this.margin.top]);
         }
     }, {
         key: "x",

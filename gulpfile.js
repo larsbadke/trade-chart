@@ -37,7 +37,11 @@ gulp.task('js', function() {
 // concat and uglify js Scripts
 gulp.task('production', function() {
 
-    gulp.src(['src/js/*.js', 'src/js/provider/*.js'])
+
+    return gulp.src(['src/js/*.js', 'src/js/**/*.js'])
+        .pipe(babel({
+            presets: ['es2015']
+        }))
         .pipe(concat('trade-chart.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('./dist/'));
