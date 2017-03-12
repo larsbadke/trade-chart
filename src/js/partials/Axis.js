@@ -15,11 +15,11 @@ class Axis {
 
         var that = this;
 
-        var format = d3.format(",.2f") ;
+        var format = d3.format(",.1f") ;
 
         if(locale == "de-DE"){
 
-            format = de_DE.format(",.2f");
+            format = de_DE.format(",.1f");
         }
 
         return d3.axisRight(yScale)

@@ -36,7 +36,7 @@ var Chart = function () {
             top: 30,
             bottom: 30,
             left: 10,
-            right: 70
+            right: 50
         };
 
         this.scale();
@@ -170,7 +170,7 @@ var Chart = function () {
 
             layer.append('g').attr("class", "Axis").attr("height", this.height).call(this.yAxis).attr("transform", "translate(" + [this.width - this.margin.right, 0] + " )");
 
-            layer.append("line").attr("class", "xAxis").attr("x1", this.margin.left).attr("y1", this.height - this.margin.bottom).attr("x2", this.width - this.margin.right).attr("y2", this.height - this.margin.bottom).attr("fill", "black").attr("stroke", "black");
+            layer.append("line").attr("class", "xAxis").attr("x1", this.margin.left).attr("y1", this.margin.bottom).attr("x2", this.margin.left).attr("y2", this.height - this.margin.bottom).attr("fill", "black").attr("stroke", "black");
         }
     }, {
         key: 'drawChart',
@@ -179,8 +179,6 @@ var Chart = function () {
             var chart = new ChartType(this.type);
 
             var width = this.width;
-
-            console.log(this.x);
 
             chart.draw(this.chart, this.data, this.x, this.y, width, this.height, this.margin);
         }
@@ -545,11 +543,11 @@ var Axis = function () {
 
             var that = this;
 
-            var format = d3.format(",.2f");
+            var format = d3.format(",.1f");
 
             if (locale == "de-DE") {
 
-                format = de_DE.format(",.2f");
+                format = de_DE.format(",.1f");
             }
 
             return d3.axisRight(yScale).tickSize(-(this.width - this.margin.right - this.margin.left)).tickFormat(function (d) {
