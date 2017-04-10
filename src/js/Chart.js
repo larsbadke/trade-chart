@@ -40,7 +40,7 @@ class Chart {
             // .attr("class", "chart")
             .attr("width", this.width)
             .attr("height", this.height)
-            .attr("transform", "translate(" + [this.margin.left, this.margin.top] + ")");
+            .attr("transform", "translate(0, 0)");
     }
     Data() {
 
